@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">14.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <Name>aes-msg-broker</Name>
+    <RootNamespace>aes-msg-broker</RootNamespace>
+    <SaveNodeJsSettingsInProjectFile>True</SaveNodeJsSettingsInProjectFile>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>5e9f9c70-dcfb-4265-9727-ae4504731a4f</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>dist/app.js</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>dist</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
+    <NodejsPort>1337</NodejsPort>
+    <EnableTypeScript>true</EnableTypeScript>
+    <StartWebBrowser>True</StartWebBrowser>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include=".env" />
+    <Content Include=".gitignore" />
+    <Content Include="readme.md" />
+    <Content Include="sql-scripts\bak\item_store.create.table.sql" />
+    <Content Include="sql-scripts\bak\item_store.insert.sql" />
+    <Content Include="sql-scripts\bak\item_store.select.sql" />
+    <Content Include="sql-scripts\bak\item_store.update.sql" />
+    <Content Include="sql-scripts\create.tables.sql" />
+    <Content Include="sql-scripts\delete.actions.sql" />
+    <Content Include="sql-scripts\insert.actions.sql" />
+    <Content Include="sql-scripts\select.actions.sql" />
+    <Content Include="sql-scripts\upsert.actions.sql" />
+    <Content Include="src\public\stylesheets\main.css" />
+    <Content Include="src\views\error.pug" />
+    <Content Include="src\views\index.pug" />
+    <Content Include="src\views\layout.pug" />
+    <Content Include="src\views\help.md" />
+    <Content Include="src\views\help.pug" />
+    <Content Include="tsconfig.json" />
+    <Content Include="package.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="sql-scripts\" />
+    <Folder Include="sql-scripts\bak\" />
+    <Folder Include="src\" />
+    <Folder Include="src\common\" />
+    <Folder Include="src\crud-store\" />
+    <Folder Include="src\enviro\" />
+    <Folder Include="src\logger\" />
+    <Folder Include="src\public\" />
+    <Folder Include="src\public\stylesheets\" />
+    <Folder Include="src\routes\" />
+    <Folder Include="src\servers\" />
+    <Folder Include="src\views\" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="src\app.ts" />
+    <TypeScriptCompile Include="src\common\e-actions.ts" />
+    <TypeScriptCompile Include="src\common\http-status.ts" />
+    <TypeScriptCompile Include="src\common\map.utils.ts" />
+    <TypeScriptCompile Include="src\crud-store\e-guard.ts" />
+    <TypeScriptCompile Include="src\crud-store\sql-factory.ts" />
+    <TypeScriptCompile Include="src\crud-store\store-cache.ts" />
+    <TypeScriptCompile Include="src\crud-store\store-dto.ts" />
+    <TypeScriptCompile Include="src\crud-store\store-request-handler.ts" />
+    <TypeScriptCompile Include="src\crud-store\store.controller.ts" />
+    <TypeScriptCompile Include="src\crud-store\task-machine.ts" />
+    <TypeScriptCompile Include="src\enviro\enviro.ts" />
+    <TypeScriptCompile Include="src\logger\logger.ts" />
+    <TypeScriptCompile Include="src\routes\env.route.ts" />
+    <TypeScriptCompile Include="src\routes\logger.route.ts" />
+    <TypeScriptCompile Include="src\routes\store.route.ts" />
+    <TypeScriptCompile Include="src\routes\user.ts" />
+    <TypeScriptCompile Include="src\servers\app.server.ts" />
+  </ItemGroup>
+  <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:48022/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost:1337</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
+        <WebProjectProperties>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
+          <AspNetDebugging>True</AspNetDebugging>
+          <SilverlightDebugging>False</SilverlightDebugging>
+          <NativeDebugging>False</NativeDebugging>
+          <SQLDebugging>False</SQLDebugging>
+          <ExternalProgram>
+          </ExternalProgram>
+          <StartExternalURL>
+          </StartExternalURL>
+          <StartCmdLineArguments>
+          </StartCmdLineArguments>
+          <StartWorkingDirectory>
+          </StartWorkingDirectory>
+          <EnableENC>False</EnableENC>
+          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
