@@ -9,7 +9,7 @@ class SqlFactoryClass {
 
     }
     Get(table: string, kind: string, key: string = undefined!): string {
-        let sql = `SELECT kind, key, jdata, guid, status, stored, store_to FROM ${DB_SCHEMA}.${table} `;
+        let sql = `SELECT kind, key, btext, guid, status, stored, store_to FROM ${DB_SCHEMA}.${table} `;
      
         if (!(kind.toLocaleLowerCase() == 'all' && !key)) {
 
@@ -43,16 +43,16 @@ class SqlFactoryClass {
     UpsertRow(table: string, row: StoreDto): string {
         const store_to = (row.store_to) ?
             `'${row.store_to.toISOString()}'` : 'DEFAULT';
-        const jdata = JSON.stringify(row.jdata || '{}');
+        const btext = JSON.stringify(row.btext || '{}');
         const sql =
 
             `
 INSERT INTO ${DB_SCHEMA}.${table}(
-	 kind, key, store_to, jdata)
-	VALUES ('${row.kind}','${row.key}',${store_to},'${jdata}')
+	 kind, key, store_to, btext)
+	VALUES ('${row.kind}','${row.key}',${store_to},'${btext}')
 ON CONFLICT(kind, key) DO UPDATE SET
 	stored = now(),
-	jdata = EXCLUDED.jdata,
+	btext = EXCLUDED.btext,
 	store_to = EXCLUDED.store_to,
 	status = 1 
 RETURNING *;
@@ -63,13 +63,13 @@ RETURNING *;
     InsertRow(table: string, row: StoreDto): string {
         const store_to = (row.store_to) ?
             `'${row.store_to.toISOString()}'` : 'DEFAULT';
-        const jdata = JSON.stringify(row.jdata || '{}');
+        const btext = JSON.stringify(row.btext || '{}');
         const sql =
 
             `
 INSERT INTO ${DB_SCHEMA}.${table}(
-	 kind, key, store_to, jdata)
-	VALUES ('${row.kind}','${row.key}',${store_to},'${jdata}')
+	 kind, key, store_to, btext)
+	VALUES ('${row.kind}','${row.key}',${store_to},'${btext}')
 RETURNING *;
 `
 
@@ -80,13 +80,13 @@ RETURNING *;
     UpdateRow(table: string, row: StoreDto): string {
         const store_to = (row.store_to) ?
             `'${row.store_to.toISOString()}'` : "DEFAULT";
-        const jdata = JSON.stringify(row.jdata || '{}');
+        const btext = JSON.stringify(row.btext || '{}');
         const sql =
             
 `UPDATE ${DB_SCHEMA}.${table} SET ` +
     `stored=now(), ` +
     `store_to=${store_to}, ` +
-    `jdata=${jdata} ` +
+    `btext=${btext} ` +
 `WHERE kind='${row.kind}' AND key='${row.key}' ` +
 `RETURNING * ;`
 

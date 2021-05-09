@@ -7,7 +7,7 @@ export class StoreDto {// implements IDto{
     //id: number = 0;// integer NOT NULL DEFAULT nextval('item_store_id_seq'::regclass),
     kind: string = '';// text COLLATE pg_catalog."memory" NOT NULL,
     key: string = '';//text COLLATE pg_catalog."memory" NOT NULL,
-    jdata: any;///text COLLATE pg_catalog."memory"
+    btext: any;///text COLLATE pg_catalog."memory"
     guid : string;// NOT NULL DEFAULT uuid_generate_v1()
     status: number = 0;
     stored : Date | undefined = new Date();//timestamp(3) with time zone NOT NULL,
@@ -25,7 +25,7 @@ export class StoreDto {// implements IDto{
             if (that.guid)this.guid = that.guid;
             if (that.stored) this.stored = that.stored;//| undefined;//timestamp(3) with time zone NOT NULL,
             if (that.store_to) this.store_to = that.store_to;
-            this.jdata = that?.jdata || {};
+            this.btext = that?.btext || {};
             if (that.status) this.status = that.status;
 
 		}
@@ -36,7 +36,7 @@ export class StoreDto {// implements IDto{
             && this.key == that.key
             && this.stored == that.stored
             && this.store_to == that.store_to
-            && this.jdata == that.jdata;
+            && this.btext == that.btext;
         return ret;
 
     }
@@ -49,8 +49,8 @@ export class StoreDto {// implements IDto{
 
    
     toString(toTabJson : boolean = false) {
-        const json = (!toTabJson) ? JSON.stringify(this.jdata || {})
-            : '\n' + JSON.stringify(this.jdata || {}, null, 2);
+        const json = (!toTabJson) ? JSON.stringify(this.btext || {})
+            : '\n' + JSON.stringify(this.btext || {}, null, 2);
         return `StoreDto:[${this.kind}/${this.key}] => ${json};`
 	}
  

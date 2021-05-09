@@ -1,5 +1,5 @@
 INSERT INTO public.actions(
-	kind, key, jdata )
+	kind, key, btext )
 VALUES 
 ('a', 'b', '{"a":"b"}' ),
 ('a', 'c', '{"a":"c"}' ),

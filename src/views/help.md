@@ -10,7 +10,7 @@
 ## /store/action/all[?db=1 all the records in table
 
 # POST - inserts data - /store/action/kind/key , 
-## body={"jdata":{"item": ...string}[,"store_to": date_string]}
+## body={"btext":{"item": ...string}[,"store_to": date_string]}
 
 # DELETE removes data - /store/action/kind[/key][?admin=admin] 
 ## /store/action/kind for one record

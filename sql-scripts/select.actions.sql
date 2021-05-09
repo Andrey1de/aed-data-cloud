@@ -1,2 +1,2 @@
-SELECT kind, key, jdata, guid, status, stored, store_to
+SELECT kind, key, btext, guid, status, stored, store_to
 	FROM public.actions
