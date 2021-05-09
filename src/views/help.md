@@ -16,7 +16,7 @@
 ## /store/action/kind for one record
 ### admin=admin allows to delete many recors
 
-# Ques now : 
+# Queues available now : 
 
 ##	-store    - stored 1 month
 ##	-users    - stored endless , admin rights
