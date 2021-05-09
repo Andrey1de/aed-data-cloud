@@ -10,9 +10,6 @@ function isTrue(str: string) {
 	str = str?.toUpperCase() || '';
 	return str === 'YES' || str === '1' || str === 'TRUE';
 }
-const firstPort = process.env.Port;
-process.env.Port = process.env.Port || '80';
-console.log(`@@@Heroku first ${firstPort} `)
 
 class EnvClass {
 	get VERSION(): string { return VERSION;}
@@ -46,7 +43,7 @@ class EnvClass {
 		const port0 = env.PORT;
 		dotenv.config();
 		//First of all External port , after tgis in .env after 3000
-		env.PORT = port0 || env.PORT || '3000';
+		env.PORT = port0 || env.PORT || '8080';
 		env.DB_SCHEMA = env.DB_SCHEMA || 'public';
 	
 		env.DB_CONNECTION_STRING = env.DATABASE_URL ||

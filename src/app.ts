@@ -72,7 +72,7 @@ app.use((err:any, req: EX.Request, res : EX.Response, next:any) => { // eslint-d
 
 
 app.set('port', Env.PORT);
-const server = app.listen(Env.PORT, function () {
+const server = app.listen(+Env.PORT, function () {
     console.log(`Express server listening on port ${(server.address() as AddressInfo).port}`);
 });
 
