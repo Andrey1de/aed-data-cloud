@@ -31,8 +31,3 @@ export function StrStatus(status: number) {
 	}
 }
 
-//import RatesController from './rates/rate.controller';
-//export const  SPAN_MS = Number(process.env.SPAN_MS) || 1000 * 3600;	 // one hour
-//export const  RATE_DB_PATH = process.env.RATE_DB_PATH || './db/StocksDb.json';
-//export const  DB_DIR = process.env.DB_DIR || './db';
-

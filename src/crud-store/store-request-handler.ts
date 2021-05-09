@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { Request } from "express";
 import { PoolClient } from "pg";
-import { Env } from '../enviro/enviro';
+import { Enviro } from '../enviro/enviro';
 import * as S from '../common/http-status';
 import { EGuard } from "./e-guard";
 import { GlobalGetMapSore, StoreCahche } from "./store-cache";
@@ -100,7 +100,7 @@ export class StoreRequestHandler {
 		let client: PoolClient = undefined!;
 		
 		try {
-			client = await Env.Pool.connect();
+			client = await Enviro.Pool.connect();
 			const { rows } = await client.query(this.sql);
 			 // Synchronize 
 			this.RowsResult = rows?.map(r => {
@@ -132,7 +132,7 @@ export class StoreRequestHandler {
 	
 		let prefix = `[${this.verb}]::[${p.queue}/${p.kind}${keyStr}]`;
 		console.log(prefix);
-		if (Env.LOG_SQL) {
+		if (Enviro.LOG_SQL) {
 			console.log(this.sql);
 
 		}
@@ -146,10 +146,10 @@ export class StoreRequestHandler {
 			console.error(this.Error);
 
 		}
-		else if (Env.LOG_RESPONSE) {
+		else if (Enviro.LOG_RESPONSE) {
 			this.prefixDump();
 
-			if (this.RowsResult.length > 0 && Env.LOG_RESPONSE_DATA) {
+			if (this.RowsResult.length > 0 && Enviro.LOG_RESPONSE_DATA) {
 				console.table(this.RowsResult);
 			}
 

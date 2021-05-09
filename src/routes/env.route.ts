@@ -3,7 +3,7 @@
  */
 import * as EX from 'express';
 import express = require('express');
-import { Env } from '../enviro/enviro';
+import { Enviro } from '../enviro/enviro';
 import * as S from '../common/http-status';
  const router: EX.Router = EX.Router();
 router.get('/get/:key?', GetKey);
@@ -22,7 +22,7 @@ function GetKey(req: EX.Request, res: EX.Response) {
     } else {
         let obj: any = {};
         const env = process.env;
-        let str = Env.dump();
+        let str = Enviro.dump();
 
           console.log(str);
         const retRes = str.replace(/\n/ig, '<br/>');
@@ -42,7 +42,7 @@ function SetKey(req: EX.Request, res: EX.Response) {
         env.LOG_RESPONSE = (num & 4) ? 'YES' : 'NO';   
         env.LOG_RESPONSE_DATA = (num & 2) ? 'YES' : 'NO';   
         env.LOG_SQL = (num & 1) ? 'YES' : 'NO';
-        let str = Env.dump();
+        let str = Enviro.dump();
         console.log(str);
         const retRes = str.replace(/\n/ig, '<br/>');
         res.send(retRes).status(S.OK).end();

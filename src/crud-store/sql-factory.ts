@@ -1,7 +1,7 @@
 import { StoreDto } from './store-dto';
-import { Env }from '../enviro/enviro';
+import { Enviro }from '../enviro/enviro';
 
-const DB_SCHEMA = Env.DB_SCHEMA;
+const DB_SCHEMA = Enviro.DB_SCHEMA;
 
 class SqlFactoryClass {
 

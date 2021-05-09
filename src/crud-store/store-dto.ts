@@ -1,5 +1,5 @@
 import { uuid } from 'uuidv4';
-//export const ITEM_STORE_TABLE_NAME =  Env.DB_SCHEMA + '.' + 'item_store'
+//export const ITEM_STORE_TABLE_NAME =  Enviro.DB_SCHEMA + '.' + 'item_store'
 
 
 

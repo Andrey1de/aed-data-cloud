@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.31129.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "aed-data-cloud", "aed-data-cloud.njsproj", "{5E9F9C70-DCFB-4265-9727-AE4504731A4F}"
 EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "ExpressApp1", "..\ExpressApp1\ExpressApp1.njsproj", "{F97A5729-A87F-4B0C-A0A5-DE60557C2A12}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{5E9F9C70-DCFB-4265-9727-AE4504731A4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E9F9C70-DCFB-4265-9727-AE4504731A4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E9F9C70-DCFB-4265-9727-AE4504731A4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F97A5729-A87F-4B0C-A0A5-DE60557C2A12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F97A5729-A87F-4B0C-A0A5-DE60557C2A12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F97A5729-A87F-4B0C-A0A5-DE60557C2A12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F97A5729-A87F-4B0C-A0A5-DE60557C2A12}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
