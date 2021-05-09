@@ -93,11 +93,11 @@ app.use((err, req, res, next) => { // eslint-disable-line @typescript-eslint/no-
         error: {}
     });
 });
-app.set('port', env.PORT);
-console.log(`Express server ??? listening on port ${app.get('port')}`)
-//const server = app.listen(app.get('port'), function () {
-//    console.log(`Express server listening on port ${(server.address() as AddressInfo).port}`);
-//});
+//app.set('port', env.PORT);
+//console.log(`Express server ??? listening on port ${app.get('port')}`)
+const server = app.listen(env.PORT, function () {
+    console.log(`Express server listening on port ${(server.address() as AddressInfo).port}`);
+});
 
 function isTrue(str: string) {
     str = str?.toUpperCase() || '';
