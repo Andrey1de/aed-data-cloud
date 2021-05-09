@@ -16,7 +16,7 @@ function isTrue(str: string) {
 
 class EnviroClass {
 	get VERSION(): string { return VERSION;}
-	get port(): string { return process.env.port; }
+	get PORT(): string { return process.env.PORT; }
 	get DB_SCHEMA() : string  {return process.env.DB_SCHEMA ; }
 	
 	get DB_CONNECTION_STRING(): string { return process.env.DB_CONNECTION_STRING ; }
@@ -97,7 +97,7 @@ class EnviroClass {
 		let str =
 `
 VERSION = ${this.VERSION}
-PORT = ${this.port}
+PORT = ${this.PORT}
 DB_SCHEMA = ${this.DB_SCHEMA}
 DB_CONNECTION_STRING = ${this.DB_CONNECTION_STRING}
 IS_HEROKU = ${this.IS_HEROKU}
