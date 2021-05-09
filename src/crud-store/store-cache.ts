@@ -138,15 +138,18 @@ export class StoreCahche extends Map<string, Map<string, StoreDto>>
 
 }
 
-const MapsGlobal: Map<string, StoreCahche> = (() => {
+export const MapsGlobal: Map<string, StoreCahche> = (() => {
 	let ret = new Map<string, StoreCahche>();
-	ret.set("store", new StoreCahche("store", 3600 * 24));
+	ret.set("store", new StoreCahche("store", 3600 * 30));
 	ret.set("users", new StoreCahche("users", -1));
 	ret.set("actions", new StoreCahche("actions", 3600 * 1000));
+	ret.set("temp", new StoreCahche("temp", 3600 * 480));//2 day s
 	ret.set("memory", new StoreCahche("memory", 0));
 
 	return ret;
 })();
+
+
 
 
 export function GlobalGetMapSore(table: string): StoreCahche {

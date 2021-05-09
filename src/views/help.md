@@ -16,3 +16,10 @@
 ## /store/action/kind for one record
 ### admin=admin allows to delete many recors
 
+#Ques now : 
+
+	## store    - stored 1 month
+	## users    - stored endless , admin rights
+	## actions  - stored 1 year
+	## temp     - stored 2 days
+	## memory   - default have no DB

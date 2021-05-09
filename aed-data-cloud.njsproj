@@ -34,15 +34,11 @@
     <Content Include=".env" />
     <Content Include=".gitignore" />
     <Content Include="readme.md" />
-    <Content Include="sql-scripts\bak\item_store.create.table.sql" />
-    <Content Include="sql-scripts\bak\item_store.insert.sql" />
-    <Content Include="sql-scripts\bak\item_store.select.sql" />
-    <Content Include="sql-scripts\bak\item_store.update.sql" />
     <Content Include="sql-scripts\create.tables.sql" />
     <Content Include="sql-scripts\delete.actions.sql" />
     <Content Include="sql-scripts\insert.actions.sql" />
     <Content Include="sql-scripts\select.actions.sql" />
-    <Content Include="sql-scripts\upsert.actions.sql" />
+    <Content Include="sql-scripts\upsert.temp.sql" />
     <Content Include="src\public\stylesheets\main.css" />
     <Content Include="src\views\error.pug" />
     <Content Include="src\views\index.pug" />
@@ -54,7 +50,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="sql-scripts\" />
-    <Folder Include="sql-scripts\bak\" />
     <Folder Include="src\" />
     <Folder Include="src\common\" />
     <Folder Include="src\crud-store\" />
