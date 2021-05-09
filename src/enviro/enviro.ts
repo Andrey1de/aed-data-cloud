@@ -44,20 +44,20 @@ class EnviroClass {
 		process.env.LOG_SQL = 'YES';
 	//const env = process.env;
 		//console.log(`@@@ Zero Port ${process.env.port} @@@`);
-		//const port0 = Enviro.port;
+		//const port0 = env.port;
 		//dotEnviro.config();
 		////First of all External port , after tgis in .env after 3000
-		//Enviro.port = port0 || Enviro.port || '8080';
-		//Enviro.DB_SCHEMA = Enviro.DB_SCHEMA || 'public';
+		//env.port = port0 || env.port || '8080';
+		//env.DB_SCHEMA = env.DB_SCHEMA || 'public';
 	
-		//Enviro.DB_CONNECTION_STRING = Enviro.DATABASE_URL ||
-		//	Enviro.POSTGRESS_LOCAL_CONNECTION_STRING;
+		//env.DB_CONNECTION_STRING = env.DATABASE_URL ||
+		//	env.POSTGRESS_LOCAL_CONNECTION_STRING;
 	
-		//const is_heroku: boolean = (Enviro.IS_HEROKU == 'YES') ||
-		//	(!Enviro.IS_HEROKU && !Enviro.POSTGRESS_LOCAL_CONNECTION_STRING);
-		//Enviro.IS_HEROKU = (is_heroku) ? 'YES' : 'NO';
+		//const is_heroku: boolean = (env.IS_HEROKU == 'YES') ||
+		//	(!env.IS_HEROKU && !env.POSTGRESS_LOCAL_CONNECTION_STRING);
+		//env.IS_HEROKU = (is_heroku) ? 'YES' : 'NO';
 	
-		//Enviro.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+		//env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 	
 		//console.log('//BEG ===== ENVIROMENT VARIAVLES  =======================');
 		//console.log(this.dump());
@@ -93,7 +93,7 @@ class EnviroClass {
 	}
 
 	dump(): string {
-		  let env = process.env;
+		  const env = process.env;
 		let str =
 `
 VERSION = ${this.VERSION}
@@ -112,7 +112,7 @@ NODE_TLS_REJECT_UNAUTHORIZED=${env.NODE_TLS_REJECT_UNAUTHORIZED}
 
 	
 }
- export const EnviroRouter = new EnviroClass()
+ export const Enviro = new EnviroClass()
 
 
 
