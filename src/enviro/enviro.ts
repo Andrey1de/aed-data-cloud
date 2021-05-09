@@ -10,6 +10,7 @@ function isTrue(str: string) {
 	str = str?.toUpperCase() || '';
 	return str === 'YES' || str === '1' || str === 'TRUE';
 }
+process.env.Port = process.env.Port || '80';
 
 class EnvClass {
 	get VERSION(): string { return VERSION;}
@@ -38,22 +39,21 @@ class EnvClass {
 	}
 
 	config(){
-		let env = process.env;
-		const is_heroku: boolean = (env.IS_HEROKU == 'YES') ||
-			(!env.IS_HEROKU && !env.POSTGRESS_LOCAL_CONNECTION_STRING);
-		env.IS_HEROKU = (is_heroku) ? 'YES' : 'NO';
 
+		let env = process.env;
 		const port0 = env.PORT;
-		console.log(`First port was ${port0}`);
 		dotenv.config();
 		//First of all External port , after tgis in .env after 3000
-		env.PORT = port0 || env.PORT || '80';
+		env.PORT = port0 || env.PORT || '3000';
 		env.DB_SCHEMA = env.DB_SCHEMA || 'public';
 	
 		env.DB_CONNECTION_STRING = env.DATABASE_URL ||
 			env.POSTGRESS_LOCAL_CONNECTION_STRING;
 	
-		
+		const is_heroku: boolean = (env.IS_HEROKU == 'YES') ||
+			(!env.IS_HEROKU && !env.POSTGRESS_LOCAL_CONNECTION_STRING);
+		env.IS_HEROKU = (is_heroku) ? 'YES' : 'NO';
+	
 		env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 	
 		console.log('//BEG ===== ENVIROMENT VARIAVLES  =======================');
@@ -90,16 +90,9 @@ class EnvClass {
 	}
 
 	dump(): string {
-		let str = '';
-		let env = process.env;
-		if (this.IS_HEROKU) {
-			Object.keys(env).forEach(function (key) {
-				str += `${key}=${env[key]}\n`;
-
-
-			})
-		} else {
-			`
+		  let env = process.env;
+		let str =
+`
 VERSION = ${this.VERSION}
 PORT = ${this.PORT}
 DB_SCHEMA = ${this.DB_SCHEMA}
@@ -110,9 +103,6 @@ LOG_RESPONSE_DATA = ${this.LOG_RESPONSE_DATA}
 LOG_SQL = ${this.LOG_SQL}
 NODE_TLS_REJECT_UNAUTHORIZED=${env.NODE_TLS_REJECT_UNAUTHORIZED}
 ` ;
-		}
-		
-
 		return str;
 	}
 
