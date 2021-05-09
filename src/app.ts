@@ -5,7 +5,7 @@ import * as dotenv from 'dotenv';
 import * as pg from 'pg';
 import { Enviro } from './enviro/enviro';
 
-import { EnvRouter } from './routes/Env.route';
+import { EnviroRouter } from './routes/enviro.route';
 import { StoreRouter } from './routes/store.route';
 import { LoggerRouter } from './routes/logger.route';
 
@@ -33,7 +33,7 @@ app.get('/help', (req: EX.Request, res: EX.Response) => {
 });
 
 
-app.use('/env', EnvRouter);
+app.use('/env', EnviroRouter);
 app.use('/store', StoreRouter);
 app.use('/LoggerRouter', StoreRouter);
 /// ============ INIT VARIABLES

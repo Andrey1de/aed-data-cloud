@@ -112,7 +112,7 @@ NODE_TLS_REJECT_UNAUTHORIZED=${env.NODE_TLS_REJECT_UNAUTHORIZED}
 
 	
 }
- export const Enviro = new EnviroClass()
+ export const EnviroRouter = new EnviroClass()
 
 
 

@@ -75,7 +75,7 @@
     <TypeScriptCompile Include="src\crud-store\task-machine.ts" />
     <TypeScriptCompile Include="src\enviro\enviro.ts" />
     <TypeScriptCompile Include="src\logger\logger.ts" />
-    <TypeScriptCompile Include="src\routes\env.route.ts" />
+    <TypeScriptCompile Include="src\routes\enviro.route.ts" />
     <TypeScriptCompile Include="src\routes\logger.route.ts" />
     <TypeScriptCompile Include="src\routes\store.route.ts" />
     <TypeScriptCompile Include="src\routes\user.ts" />
