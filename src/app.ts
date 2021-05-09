@@ -30,7 +30,7 @@ app.use(EX.static(path.join(__dirname, 'public')));
 app.get('/', (req: EX.Request, res: EX.Response) => {
     res.render('index', {
         title: 'AED Heroku Service @2021',
-            name: 'aed-data-cloud , Version:1.1.0.0'
+            name: 'aed-data-cloud , Version:1.2.0.0'
     });
 });
 app.get('/help', (req: EX.Request, res: EX.Response) => {
