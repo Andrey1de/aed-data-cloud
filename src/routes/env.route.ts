@@ -59,8 +59,6 @@ function SetKey(req: EX.Request, res: EX.Response) {
       } else {
         res.sendStatus(S.BAD_REQUEST).end();
     }
-
-
 }
 
 
