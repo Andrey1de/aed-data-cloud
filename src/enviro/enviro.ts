@@ -1,5 +1,5 @@
 ///
-///	IMPORTANT ALL THE EXPORTS IS READONY FOR APPLICATION
+///	IMportANT ALL THE EXportS IS READONY FOR APPLICATION
 /// RESULT AS SNAPSHOT FOR process.env ,  goal - decouple 
 /// PROCESS ENV AND APPLICATION !!!!
 ///
@@ -11,9 +11,10 @@ function isTrue(str: string) {
 	return str === 'YES' || str === '1' || str === 'TRUE';
 }
 
+
 class EnvClass {
 	get VERSION(): string { return VERSION;}
-	get PORT() : number {return +process.env.Port ; }
+	get port(): string { return process.env.port; }
 	get DB_SCHEMA() : string  {return process.env.DB_SCHEMA ; }
 	
 	get DB_CONNECTION_STRING(): string { return process.env.DB_CONNECTION_STRING ; }
@@ -38,12 +39,13 @@ class EnvClass {
 	}
 
 	config(){
-
+	
 		let env = process.env;
-		const port0 = env.PORT;
+		console.log(`@@@ Zero Port ${process.env.port} @@@`);
+		const port0 = Env.port;
 		dotenv.config();
 		//First of all External port , after tgis in .env after 3000
-		env.PORT = port0 || env.PORT || '8080';
+		Env.port = port0 || Env.port || '8080';
 		env.DB_SCHEMA = env.DB_SCHEMA || 'public';
 	
 		env.DB_CONNECTION_STRING = env.DATABASE_URL ||
@@ -93,7 +95,7 @@ class EnvClass {
 		let str =
 `
 VERSION = ${this.VERSION}
-PORT = ${this.PORT}
+port = ${this.port}
 DB_SCHEMA = ${this.DB_SCHEMA}
 DB_CONNECTION_STRING = ${this.DB_CONNECTION_STRING}
 IS_HEROKU = ${this.IS_HEROKU}
