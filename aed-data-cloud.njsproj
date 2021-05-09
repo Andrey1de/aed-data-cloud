@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include=".env" />
+    <Content Include=".env.prod" />
     <Content Include=".gitignore" />
     <Content Include="readme.md" />
     <Content Include="sql-scripts\create.tables.sql" />

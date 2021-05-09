@@ -23,3 +23,10 @@
 ##	-actions  - stored 1 year
 ##	-temp     - stored 2 days
 ##	-memory   - default have no DB
+
+# env/get/[all]
+# env/set/dump
+    env.LOG_RESPONSE = (num & 4) ? 'YES' : 'NO';   
+    env.LOG_RESPONSE_DATA = (num & 2) ? 'YES' : 'NO';   
+    env.LOG_SQL = (num & 1) ? 'YES' : 'NO';
+

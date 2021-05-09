@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { Request } from "express";
 import { PoolClient } from "pg";
-import * as  Env from '../enviro/enviro';
+import { Env } from '../enviro/enviro';
 import * as S from '../common/http-status';
 import { EGuard } from "./e-guard";
 import { GlobalGetMapSore, StoreCahche } from "./store-cache";
@@ -132,7 +132,7 @@ export class StoreRequestHandler {
 	
 		let prefix = `[${this.verb}]::[${p.queue}/${p.kind}${keyStr}]`;
 		console.log(prefix);
-		if (Env.TO_LOG_SQL) {
+		if (Env.LOG_SQL) {
 			console.log(this.sql);
 
 		}
@@ -146,10 +146,10 @@ export class StoreRequestHandler {
 			console.error(this.Error);
 
 		}
-		else if (Env.TO_LOG_RESPONSE) {
+		else if (Env.LOG_RESPONSE) {
 			this.prefixDump();
 
-			if (this.RowsResult.length > 0 && Env.TO_LOG_RESPONSE_DATA) {
+			if (this.RowsResult.length > 0 && Env.LOG_RESPONSE_DATA) {
 				console.table(this.RowsResult);
 			}
 
