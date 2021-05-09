@@ -43,7 +43,7 @@ class SqlFactoryClass {
     UpsertRow(table: string, row: StoreDto): string {
         const store_to = (row.store_to) ?
             `'${row.store_to.toISOString()}'` : 'DEFAULT';
-        const btext = JSON.stringify(row.btext || '{}');
+        const btext = row.btext || '';
         const sql =
 
             `
@@ -63,7 +63,7 @@ RETURNING *;
     InsertRow(table: string, row: StoreDto): string {
         const store_to = (row.store_to) ?
             `'${row.store_to.toISOString()}'` : 'DEFAULT';
-        const btext = JSON.stringify(row.btext || '{}');
+        const btext = row.btext || '';
         const sql =
 
             `
