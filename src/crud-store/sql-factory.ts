@@ -1,15 +1,15 @@
 import { StoreDto } from './store-dto';
 import { Enviro }from '../enviro/enviro';
 
-const DB_SCHEMA = Enviro.DB_SCHEMA;
+
 
 class SqlFactoryClass {
-
+  
     constructor() {
 
     }
     Get(table: string, kind: string, key: string = undefined!): string {
-        let sql = `SELECT kind, key, btext, guid, status, stored, store_to FROM ${DB_SCHEMA}.${table} `;
+        let sql = `SELECT * FROM ${Enviro.DB_SCHEMA}.${table} `;
      
         if (!(kind.toLocaleLowerCase() == 'all' && !key)) {
 
@@ -24,7 +24,7 @@ class SqlFactoryClass {
     }
     Delete(table: string, kind: string, key: string = undefined!): string {
 
-        let sql = `DELETE FROM ${DB_SCHEMA}.${table} `;
+        let sql = `DELETE FROM ${Enviro.DB_SCHEMA}.${table} `;
         if (!(kind.toLocaleLowerCase() == 'all' && !key)) {
 
             sql += `WHERE kind='${kind}'`;
@@ -47,7 +47,7 @@ class SqlFactoryClass {
         const sql =
 
             `
-INSERT INTO ${DB_SCHEMA}.${table}(
+INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
 	 kind, key, store_to, btext)
 	VALUES ('${row.kind}','${row.key}',${store_to},'${btext}')
 ON CONFLICT(kind, key) DO UPDATE SET
@@ -67,7 +67,7 @@ RETURNING *;
         const sql =
 
             `
-INSERT INTO ${DB_SCHEMA}.${table}(
+INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
 	 kind, key, store_to, btext)
 	VALUES ('${row.kind}','${row.key}',${store_to},'${btext}')
 RETURNING *;
@@ -83,7 +83,7 @@ RETURNING *;
         const btext = JSON.stringify(row.btext || '{}');
         const sql =
             
-`UPDATE ${DB_SCHEMA}.${table} SET ` +
+`UPDATE ${Enviro.DB_SCHEMA}.${table} SET ` +
     `stored=now(), ` +
     `store_to=${store_to}, ` +
     `btext=${btext} ` +

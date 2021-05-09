@@ -38,27 +38,25 @@ class EnviroClass {
 
 	config(){
 	
-		process.env.VERSION = this.VERSION;
-		process.env.LOG_RESPONSE = 'YES';
-		process.env.LOG_RESPONSE_DATA = 'YES';
-		process.env.LOG_SQL = 'YES';
-	//const env = process.env;
-		//console.log(`@@@ Zero Port ${process.env.port} @@@`);
-		//const port0 = env.port;
-		//dotEnviro.config();
-		////First of all External port , after tgis in .env after 3000
-		//env.port = port0 || env.port || '8080';
-		//env.DB_SCHEMA = env.DB_SCHEMA || 'public';
-	
-		//env.DB_CONNECTION_STRING = env.DATABASE_URL ||
-		//	env.POSTGRESS_LOCAL_CONNECTION_STRING;
-	
-		//const is_heroku: boolean = (env.IS_HEROKU == 'YES') ||
-		//	(!env.IS_HEROKU && !env.POSTGRESS_LOCAL_CONNECTION_STRING);
-		//env.IS_HEROKU = (is_heroku) ? 'YES' : 'NO';
-	
-		//env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-	
+		const env = process.env;
+		env.VERSION = this.VERSION;
+		env.LOG_RESPONSE = 'YES';
+		env.LOG_RESPONSE_DATA = 'YES';
+		env.LOG_SQL = 'YES';
+		dotenv.config();
+
+		const is_heroku: boolean = (env.IS_HEROKU == 'YES') ||
+			(!env.IS_HEROKU && !env.POSTGRESS_LOCAL_CONNECTION_STRING);
+		env.IS_HEROKU = (is_heroku) ? 'YES' : 'NO';
+		env.DB_SCHEMA =  env.DB_SCHEMA || 'public';
+		const DB_CONNECTION_STRING = env.DATABASE_URL ||
+			env.POSTGRESS_LOCAL_CONNECTION_STRING;
+		env.DB_CONNECTION_STRING = DB_CONNECTION_STRING;
+		//if (is_heroku) {
+		env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+		//}
+
 		//console.log('//BEG ===== ENVIROMENT VARIAVLES  =======================');
 		//console.log(this.dump());
 		//console.log('//END ===== ENVIROMENT VARIAVLES  =======================');

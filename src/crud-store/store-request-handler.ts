@@ -46,7 +46,7 @@ export class StoreRequestHandler {
 		this.isAdmin = strDb === 'admin' || strDb === 'kuku-ja-chajnik';
 		this.Store = GlobalGetMapSore(this.queue);
 		this.oneRow = !!this.key;
-		this.bodyValid = this.oneRow && (req.body && req.body.btext);
+		this.bodyValid = !!this.oneRow && (!!req.body && !!req.body.btext);
 		//The row is generated in every case   but update and insert would be forbudden !!!
 		this.row = new StoreDto(undefined);
 		this.row.key = this.key;
@@ -121,7 +121,10 @@ export class StoreRequestHandler {
 			this.error = e;
 			//console.error(e);
 		} finally {
-			client?.release();
+			if (client) {
+				await client.release();
+			}
+			
 			client = undefined;
 		}
 	}
