@@ -40,12 +40,12 @@ class EnvClass {
 
 	config(){
 	
-		let env = process.env;
+		const env = process.env;
 		console.log(`@@@ Zero Port ${process.env.port} @@@`);
 		const port0 = Env.port;
 		dotenv.config();
 		//First of all External port , after tgis in .env after 3000
-		Env.port = port0 || Env.port || '8080';
+		env.port = port0 || env.port || '8080';
 		env.DB_SCHEMA = env.DB_SCHEMA || 'public';
 	
 		env.DB_CONNECTION_STRING = env.DATABASE_URL ||
