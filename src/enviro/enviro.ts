@@ -10,7 +10,9 @@ function isTrue(str: string) {
 	str = str?.toUpperCase() || '';
 	return str === 'YES' || str === '1' || str === 'TRUE';
 }
+const firstPort = process.env.Port;
 process.env.Port = process.env.Port || '80';
+console.log(`@@@Heroku first ${firstPort} `)
 
 class EnvClass {
 	get VERSION(): string { return VERSION;}
