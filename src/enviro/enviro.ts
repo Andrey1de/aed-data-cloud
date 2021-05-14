@@ -6,7 +6,7 @@
 import  * as pg  from 'pg';
 import * as dotenv from 'dotenv';
 import * as EX from 'express';
-const VERSION = '1.2.1';
+const VERSION = '1.2.5';
 function isTrue(str: string) {
 	str = str?.toUpperCase() || '';
 	return str === 'YES' || str === '1' || str === 'TRUE';
