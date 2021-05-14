@@ -17,7 +17,7 @@
 .env
 .shortcut
 .lnk
-package.lock
+#package.lock
 *.log
 
 # User-specific files (MonoDevelop/Xamarin Studio)
