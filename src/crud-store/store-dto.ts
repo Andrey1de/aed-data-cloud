@@ -8,7 +8,6 @@ export class StoreDto {// implements IDto{
     kind: string = '';// text COLLATE pg_catalog."memory" NOT NULL,
     key: string = '';//text COLLATE pg_catalog."memory" NOT NULL,
     btext: any;///text COLLATE pg_catalog."memory"
-    guid : string;// NOT NULL DEFAULT uuid_generate_v1()
     status: number = 0;
     stored : Date | undefined = new Date();//timestamp(3) with time zone NOT NULL,
     store_to: Date | undefined;
@@ -22,8 +21,7 @@ export class StoreDto {// implements IDto{
         if (that) {
             this.kind = that.kind;
             this.key = that.key;
-            if (that.guid)this.guid = that.guid;
-            if (that.stored) this.stored = that.stored;//| undefined;//timestamp(3) with time zone NOT NULL,
+             if (that.stored) this.stored = that.stored;//| undefined;//timestamp(3) with time zone NOT NULL,
             if (that.store_to) this.store_to = that.store_to;
             this.btext = that?.btext || {};
             if (that.status) this.status = that.status;
