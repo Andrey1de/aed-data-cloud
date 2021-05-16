@@ -33,9 +33,9 @@ export class StoreController {
 			}
 		
 			if (rowsRet.length > 0) {
-				res.send(rowsRet).status(S.OK).end();
+				res.send(rowsRet).end();
 			} else {
-				res.send(rowsRet).sendStatus(S.NOT_FOUND).end();
+				res.status(S.NOT_FOUND).end();
 
 			}
 
@@ -71,7 +71,7 @@ export class StoreController {
 			TaskMachine.EnqueueTask(p);
 
 			if (rowsOld.length > 0) {
-				res.send(rowsOld).status(S.OK).end();
+				res.status(S.OK).send(rowsOld).end();
 			} else {
 				res.sendStatus(S.NOT_FOUND).end();
   			}
@@ -108,7 +108,7 @@ export class StoreController {
 			}
 			let status = (row.status == 0) ? S.CREATED : S.OK;
 
-			res.send([row]).sendStatus(status).end();
+			res.status(status).send([row]).end();
 
 		} catch (error) {
 			res.status(S.CONFLICT).send(error);
