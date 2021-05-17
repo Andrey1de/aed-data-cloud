@@ -152,9 +152,9 @@ export const MapsGlobal: Map<string, StoreCahche> = (() => {
 
 
 
-export function GlobalGetMapSore(table: string): StoreCahche {
-	return MapsGlobal.get(table)
-		|| MapsGlobal.get('memory');
+export function GlobalGetMapSore(queue: string): StoreCahche {
+	return MapsGlobal.get(queue);
+		
 }
 
 

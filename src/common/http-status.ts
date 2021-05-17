@@ -1,12 +1,13 @@
 import { StatusCodes } from 'http-status-codes';
 export const  OK = StatusCodes.OK;
+export const  ACCEPTED = StatusCodes.ACCEPTED;//202
 export const  BAD_REQUEST = StatusCodes.BAD_REQUEST;
-export const  CREATED = StatusCodes.CREATED;
+export const  CREATED = StatusCodes.CREATED;//201
 export const  CONFLICT = StatusCodes.CONFLICT;///409
-export const  NOT_FOUND = StatusCodes.NOT_FOUND;
+export const  NOT_FOUND = StatusCodes.NOT_FOUND;//404
 export const  NOT_IMPLEMENTED = StatusCodes.NOT_IMPLEMENTED; //501
-export const NOT_MODIFIED = StatusCodes.NOT_MODIFIED;//NOT_MODIFIED
-export const  NO_CONTENT = StatusCodes.NO_CONTENT;
+export const NOT_MODIFIED = StatusCodes.NOT_MODIFIED;//304 NOT_MODIFIED
+export const  NO_CONTENT = StatusCodes.NO_CONTENT;//204
 export const  IM_A_TEAPOT = StatusCodes.IM_A_TEAPOT;
 export const PRECONDITION_FAILED = 412;//StatusCodes.PRECONDITION_FAILED;
 export const FORBIDDEN = StatusCodes.FORBIDDEN;//403//StatusCodes.PRECONDITION_FAILED;
@@ -15,6 +16,7 @@ export const FORBIDDEN = StatusCodes.FORBIDDEN;//403//StatusCodes.PRECONDITION_F
 export function StrStatus(status: number) {
 	switch (status) {
 		case OK:			return 'OK';
+		case ACCEPTED:		return 'ACCEPTED';
 		case CREATED:		return 'CREATED';
 		case BAD_REQUEST:	return 'BAD_REQUEST';
 		case CREATED:		return 'CREATED';

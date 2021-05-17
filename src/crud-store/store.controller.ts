@@ -31,13 +31,8 @@ export class StoreController {
 				p.Dump();
 				rowsRet = p.RowsResult;
 			}
-		
-			if (rowsRet.length > 0) {
-				res.send(rowsRet).end();
-			} else {
-				res.status(S.NOT_FOUND).end();
-
-			}
+		//	let status = (rowsRet.length > 0) ? S.OK : S.NO_CONTENT;
+			res.status(S.OK).send(rowsRet).end();
 
 		} catch (error) {
 			res.status(S.CONFLICT).send(error);
@@ -45,48 +40,13 @@ export class StoreController {
 	}
 
 	///============================================================
-	///	Deletes one row or if uuser has admin rights many row 
-	/// by low of Get
-	/// Returns old deleted rows;
-	//==============================================================
-
-	public async Delete$(req: Request, res: Response) {
-		var rowsOld: StoreDto[] = [];
-		
-		try {
-
-			let p: StoreRequestHandler = new StoreRequestHandler(req, res,
-				'DELETE',EGuard.Kind | EGuard.Kind);
-			rowsOld = p.Store.getMany(p.kind, p.key);
-
-			if (p.Validate() != S.OK) {
-				return;
-			}
-			if (!p.isAdmin && !p.oneRow) {
-				res.send('Tis user has no acess rights for group DELETE operation')
-					.sendStatus(S.FORBIDDEN).end();
-				return;
-			}
-			p.sql = SqlFactory.Delete(p.queue, p.kind, p.key);
-			TaskMachine.EnqueueTask(p);
-
-			if (rowsOld.length > 0) {
-				res.status(S.OK).send(rowsOld).end();
-			} else {
-				res.sendStatus(S.NOT_FOUND).end();
-  			}
-
-			} catch (error) {
-			res.status(S.CONFLICT).send(error);
-		}
-	}
-	///============================================================
 	///	Inserts one row or if uuser has admin rights many row 
 	/// by low of Get
 	/// Returns old deleted rows;
 	//==============================================================
 
 	public async Upsert$(req: Request, res: Response) {
+
 
 		try {
 			let p: StoreRequestHandler = new StoreRequestHandler(req, res,
@@ -104,6 +64,7 @@ export class StoreController {
 				row = p.RowsResult[0];
 			} else {
 				TaskMachine.EnqueueTask(p);
+				
 				row.status = 1;
 			}
 			let status = (row.status == 0) ? S.CREATED : S.OK;
@@ -117,6 +78,40 @@ export class StoreController {
 	
 	}
 
+///============================================================
+	///	Deletes one row or if uuser has admin rights many row 
+	/// by low of Get
+	/// Returns old deleted rows;
+	//==============================================================
+
+	public async Delete$(req: Request, res: Response) {
+		var rowsOld: StoreDto[] = [];
+		
+		try {
+
+			let p: StoreRequestHandler = new StoreRequestHandler(req, res,
+				'DELETE',EGuard.Kind | EGuard.Kind | EGuard.Key);
+			rowsOld = p.Store.getMany(p.kind, p.key);
+
+			if (p.Validate() != S.OK) {
+				return;
+			}
+			// if (!p.isAdmin && !p.oneRow) {
+			// 	res.send('Tis user has no acess rights for group DELETE operation')
+			// 		.sendStatus(S.FORBIDDEN).end();
+			// 	return;
+			// }
+			p.sql = SqlFactory.Delete(p.queue, p.kind, p.key);
+			TaskMachine.EnqueueTask(p);
+
+			let status = (!!rowsOld) ? S.OK : S.NO_CONTENT;
+			res.status(status).send(rowsOld).end();
+
+
+		} catch (error) {
+			res.status(S.CONFLICT).send(error);
+		}
+	}
 
 }
 //	public async Update$(req: Request, res: Response) {

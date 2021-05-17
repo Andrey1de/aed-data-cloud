@@ -48,7 +48,7 @@ app.get('/help', (req: EX.Request, res: EX.Response) => {
 
 
 app.use('/env', EnviroRouter);
-app.use('/store', StoreRouter);
+app.use('/cloud', StoreRouter);
 app.use('/LoggerRouter', StoreRouter);
 
 
@@ -89,10 +89,10 @@ const server = app.listen(env.PORT, function () {
     console.log(`Express server listening on port ${(server.address() as AddressInfo).port}`);
 });
 
-function isTrue(str: string) {
-    str = str?.toUpperCase() || '';
-    return str === 'YES' || str === '1' || str === 'TRUE';
-}
+// function isTrue(str: string) {
+//     str = str?.toUpperCase() || '';
+//     return str === 'YES' || str === '1' || str === 'TRUE';
+// }
 
 //function dbConnect(): pg.Pool {
 

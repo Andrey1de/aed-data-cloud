@@ -16,16 +16,35 @@ export class StoreDto {// implements IDto{
         this.fromAny(that);
 
     }   
+    normDate(that : any | undefined) : Date{
+		if(that instanceof Date) that;
+		return new Date(that);
+
+	}
+    normBody(btext : any | string | undefined)  : any{
+	    if(typeof btext === 'object') {
+            this.btext = btext;
+        } else if(typeof btext === 'string') {
+            this.btext =  JSON.parse(btext);
+        } else {
+            this.btext = {};
+
+        }
+   
+	}
+
 
     fromAny(that: any) {
         if (that) {
             this.kind = that.kind;
             this.key = that.key;
-             if (that.stored) this.stored = that.stored;//| undefined;//timestamp(3) with time zone NOT NULL,
-            if (that.store_to) this.store_to = that.store_to;
-            this.btext = that?.btext || {};
-            if (that.status) this.status = that.status;
-
+            if (that.stored) 
+                this.stored = this.normDate(that.stored);//| undefined;//timestamp(3) with time zone NOT NULL,
+            if (that.store_to) 
+                this.store_to = this.normDate(that.store_to);
+            if (that.status) 
+                this.status = that.status;
+             this.normBody(that.btext);
 		}
     }
     compare(that: StoreDto): boolean {

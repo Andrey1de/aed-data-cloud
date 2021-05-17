@@ -6,6 +6,7 @@ import * as S from '../common/http-status';
 import { EGuard } from "./e-guard";
 import { GlobalGetMapSore, StoreCahche } from "./store-cache";
 import { StoreDto } from "./store-dto";
+import { stream } from "winston";
 
 
 
@@ -36,9 +37,14 @@ export class StoreRequestHandler {
 		public readonly verb: string,
 		public readonly flags: EGuard = EGuard.Zero)
 	{
-		this.queue = req.params?.queue.toString() || 'memory';
-		this.kind = req.params?.kind || '';
+		this.queue = (req.params?.queue.toString() || 'memory').toLowerCase();
+		this.kind = (req.params?.kind || '').toLowerCase();
 		this.key = req.params?.key || '';
+		if(this.queue == 'store' && this.kind  == 'money') {
+			this.key = this.key.toUpperCase();
+
+		}
+	
 		//let body = req.body?.item || req.body;
 		const strDb = (req.query?.db || '').toLocaleString();
 		this.db = strDb === '1' || strDb.startsWith('y') || strDb.startsWith('t');
@@ -48,43 +54,52 @@ export class StoreRequestHandler {
 		this.oneRow = !!this.key;
 		this.bodyValid = !!this.oneRow && (!!req.body && !!req.body.btext);
 		//The row is generated in every case   but update and insert would be forbudden !!!
-		this.row = new StoreDto(undefined);
-		this.row.key = this.key;
-		this.row.kind = this.kind;
-		this.row.stored = req.body?.stored || new Date();
-		this.row.store_to = req.body?.store_to || new Date('2100-01-01');
-		this.row.btext = req.body?.btext || {"item":""};
-
+		if(this.bodyValid) {
+			this.row = new StoreDto(undefined);
+			this.row.key = this.key;
+			this.row.kind = this.kind;
+			this.row.stored = this.normDate(req.body?.stored ,new Date());
+			this.row.store_to = this.normDate(req.body?.store_to,new Date('2100-01-01' ));
+			this.row.normBody(req?.body.btext) ;
 	
+		}
+		
+	}
+
+	normDate(that : any, deflt : Date){
+		if(!that) return deflt;
+		if(that instanceof Date) that;
+		return new Date(that);
+
 	}
 
 	get OK(): boolean { return this.status == S.OK };
 
 	Validate(): number {
 		this.error = undefined;
-		let strError : string = ';'
+		let strError : string = '';
 		this.res.setHeader('content-kind', 'application/json');
-		if (!this.req.params?.queue) {
-			this.req.params.queue = 'memory';
+		if (!this.Store) {
+			strError += ((!!strError) ? ' AND ' : '') + `Bad parameter: queue:` + this.queue;
+			this.status = S.BAD_REQUEST;
 		}
 
 		if ((this.flags & EGuard.Kind) && !this.kind) {//(this.flags & EGuard.Type) && this.kind
-			strError += ((!!strError) ? ' AND ' : '') + `Bad parameter: kind`;
+			strError += ((!!strError) ? ' AND ' : '') + `Bad parameter: kind:` + this.kind;
 			this.status = S.BAD_REQUEST;
 
 		}
 
 		if ((this.flags & EGuard.Key) && !this.key) {
 			this.status = S.BAD_REQUEST;
-			strError += ((!!strError) ? ' AND ' : '') + `Bad parameter: key `;
-
+			strError += ((!!strError) ? ' AND ' : '') + `Bad parameter: key:` + this.key;
 		}
 
 		if ((this.flags & EGuard.Body) && !this.bodyValid) {
 			this.status = S.PRECONDITION_FAILED;
 			strError += ((!!strError) ? ' AND ' : '') + `Bad parameter: body `;
-
 		}
+
 		if (this.status != S.OK) {
 			this.error = new Error(strError);
 
@@ -104,6 +119,7 @@ export class StoreRequestHandler {
 			const { rows } = await client.query(this.sql);
 			 // Synchronize 
 			this.RowsResult = rows?.map(r => {
+					
 				const row = new StoreDto(r);
 				if (!isDelete) {
 					this.Store.setItem(row.kind, row.key, row);
