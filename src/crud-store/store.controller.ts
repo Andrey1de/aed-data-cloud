@@ -63,6 +63,7 @@ export class StoreController {
 			if (!old) {
 				await p.Run$();
 				row = p.RowsResult[0];
+				p.Dump();
 			} else {
 				TaskMachine.EnqueueTask(p);
 				
