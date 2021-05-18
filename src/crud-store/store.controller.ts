@@ -106,7 +106,7 @@ export class StoreController {
 			p.sql = SqlFactory.Delete(p.queue, p.kind, p.key);
 			TaskMachine.EnqueueTask(p);
 
-			let status = (!!rowsOld) ? S.OK : S.NO_CONTENT;
+			let status = (!!rowsOld && rowsOld.length > 0) ? S.OK : S.NO_CONTENT;
 			const jsonArr = rowsOld.map(p=>p.jsonb);
 			res.status(status).send(jsonArr).end();
 
