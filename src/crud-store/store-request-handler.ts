@@ -20,7 +20,7 @@ export class StoreRequestHandler {
 	readonly isAdmin: boolean = false!;
 	readonly oneRow: boolean = false!;
 	//private readonly body: any = undefined!; //= (req.body.item || req.body);
-	readonly bodyValid: boolean = false;//(this.body && this.body.btext)
+	readonly bodyValid: boolean = false;//(this.body && this.body.jsonb)
 	//this.row genera
 	readonly row: StoreDto = undefined!; //= (req.body.item || req.body);
 	readonly Store: StoreCahche;
@@ -52,7 +52,7 @@ export class StoreRequestHandler {
 		this.isAdmin = strDb === 'admin' || strDb === 'kuku-ja-chajnik';
 		this.Store = GlobalGetMapSore(this.queue);
 		this.oneRow = !!this.key;
-		this.bodyValid = !!this.oneRow && (!!req.body && !!req.body.btext);
+		this.bodyValid = !!this.oneRow && (!!req.body && !!req.body.jsonb);
 		//The row is generated in every case   but update and insert would be forbudden !!!
 		if(this.bodyValid) {
 			this.row = new StoreDto(undefined);
@@ -60,8 +60,7 @@ export class StoreRequestHandler {
 			this.row.kind = this.kind;
 			this.row.stored = this.normDate(req.body?.stored ,new Date());
 			this.row.store_to = this.normDate(req.body?.store_to,new Date('2100-01-01' ));
-			this.row.normBody(req?.body.btext) ;
-	
+			this.row.jsonb = req.body.jsonb ;
 		}
 		
 	}

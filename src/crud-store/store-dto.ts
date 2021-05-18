@@ -1,4 +1,4 @@
-import { uuid } from 'uuidv4';
+//import { uuid } from 'uuidv4';
 //export const ITEM_STORE_TABLE_NAME =  Enviro.DB_SCHEMA + '.' + 'item_store'
 
 
@@ -7,12 +7,12 @@ export class StoreDto {// implements IDto{
     //id: number = 0;// integer NOT NULL DEFAULT nextval('item_store_id_seq'::regclass),
     kind: string = '';// text COLLATE pg_catalog."memory" NOT NULL,
     key: string = '';//text COLLATE pg_catalog."memory" NOT NULL,
-    btext: any;///text COLLATE pg_catalog."memory"
+    jsonb: any;///json (from jsonb)
     status: number = 0;
     stored : Date | undefined = new Date();//timestamp(3) with time zone NOT NULL,
     store_to: Date | undefined;
      
-    constructor(that: any | undefined ) {
+    constructor(that: any = undefined ) {
         this.fromAny(that);
 
     }   
@@ -21,17 +21,17 @@ export class StoreDto {// implements IDto{
 		return new Date(that);
 
 	}
-    normBody(btext : any | string | undefined)  : any{
-	    if(typeof btext === 'object') {
-            this.btext = btext;
-        } else if(typeof btext === 'string') {
-            this.btext =  JSON.parse(btext);
-        } else {
-            this.btext = {};
+    // normBody(jsonb : any | string | undefined)  : any{
+	//     if(typeof jsonb === 'object') {
+    //         this.jsonb = jsonb;
+    //     } else if(typeof jsonb === 'string') {
+    //         this.jsonb =  JSON.parse(jsonb);
+    //     } else {
+    //         this.jsonb = {};
 
-        }
+    //     }
    
-	}
+	// }
 
 
     fromAny(that: any) {
@@ -44,7 +44,9 @@ export class StoreDto {// implements IDto{
                 this.store_to = this.normDate(that.store_to);
             if (that.status) 
                 this.status = that.status;
-             this.normBody(that.btext);
+            if (that.jsonb) 
+                this.jsonb = that.jsonb;
+              
 		}
     }
     compare(that: StoreDto): boolean {
@@ -53,7 +55,7 @@ export class StoreDto {// implements IDto{
             && this.key == that.key
             && this.stored == that.stored
             && this.store_to == that.store_to
-            && this.btext == that.btext;
+            && this.jsonb == that.jsonb;
         return ret;
 
     }
@@ -66,8 +68,8 @@ export class StoreDto {// implements IDto{
 
    
     toString(toTabJson : boolean = false) {
-        const json = (!toTabJson) ? JSON.stringify(this.btext || {})
-            : '\n' + JSON.stringify(this.btext || {}, null, 2);
+        const json = (!toTabJson) ? JSON.stringify(this.jsonb || {})
+            : '\n' + JSON.stringify(this.jsonb || {}, null, 2);
         return `StoreDto:[${this.kind}/${this.key}] => ${json};`
 	}
  

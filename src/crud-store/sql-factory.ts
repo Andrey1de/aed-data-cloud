@@ -8,10 +8,19 @@ class SqlFactoryClass {
     constructor() {
 
     }
+
+    normDate(that : any | undefined) : Date{
+		if(that instanceof Date) that;
+		return new Date(that);
+
+	}
+
+    // SELECT id, kind, key, jsonb, status, stored, store_to
+	// FROM public.store;
     Get(table: string, kind: string, key: string = undefined!): string {
-        let sql = `SELECT * FROM ${Enviro.DB_SCHEMA}.${table} `;
+        let sql = `SELECT id, kind, key, jsonb, status, stored, store_to FROM ${Enviro.DB_SCHEMA}.${table} `;
      
-        if (!(kind.toLocaleLowerCase() == 'all' && !key)) {
+        if (!(kind.toLowerCase() == 'all' && !key)) {
 
             sql += `WHERE kind='${kind}'`;
             if(key) {
@@ -38,21 +47,21 @@ class SqlFactoryClass {
         return sql;
 
     }
-
-
     UpsertRow(table: string, row: StoreDto): string {
         const store_to = (row.store_to) ?
-            `'${row.store_to.toISOString()}'` : 'DEFAULT';
-        const btext = row.btext || '';
+            `'${this.normDate(row.store_to).toISOString()}'` : 'DEFAULT';
+         const jsonb = JSON.stringify(row.jsonb) ;
+         //TO ENCODE ????
+
         const sql =
 
             `
 INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
-	 kind, key, store_to, btext)
-	VALUES ('${row.kind}','${row.key}',${store_to},'${btext}')
+	 kind, key, jsonb , store_to)
+	VALUES ('${row.kind}','${row.key}','${jsonb}',${store_to})
 ON CONFLICT(kind, key) DO UPDATE SET
 	stored = now(),
-	btext = EXCLUDED.btext,
+	jsonb = EXCLUDED.jsonb,
 	store_to = EXCLUDED.store_to,
 	status = 1 
 RETURNING *;
@@ -60,16 +69,18 @@ RETURNING *;
 
         return sql;
     }
+
+
     InsertRow(table: string, row: StoreDto): string {
         const store_to = (row.store_to) ?
-            `'${row.store_to.toISOString()}'` : 'DEFAULT';
-        const btext = row.btext || '';
+            `'${this.normDate(row.store_to).toISOString()}'` : 'DEFAULT';
+        const jsonb = JSON.stringify(row.jsonb) ;
+            //TO ENCODE ????
         const sql =
-
-            `
+           `
 INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
-	 kind, key, store_to, btext)
-	VALUES ('${row.kind}','${row.key}',${store_to},'${btext}')
+	 kind, key, store_to, jsonb)
+	VALUES ('${row.kind}','${row.key}','${jsonb}',${store_to})
 RETURNING *;
 `
 
@@ -80,13 +91,14 @@ RETURNING *;
     UpdateRow(table: string, row: StoreDto): string {
         const store_to = (row.store_to) ?
             `'${row.store_to.toISOString()}'` : "DEFAULT";
-        const btext = JSON.stringify(row.btext || '{}');
+        const jsonb = row.jsonb;
+        //TO ENCODE ????
         const sql =
             
 `UPDATE ${Enviro.DB_SCHEMA}.${table} SET ` +
     `stored=now(), ` +
     `store_to=${store_to}, ` +
-    `btext=${btext} ` +
+    `jsonb=${jsonb} ` +
 `WHERE kind='${row.kind}' AND key='${row.key}' ` +
 `RETURNING * ;`
 

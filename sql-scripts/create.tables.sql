@@ -1,4 +1,4 @@
--- 2021-05-09 changed btext and append passive unique key id
+-- 2021-05-18 added jsonb and append passive unique key id
 -- 2021-05-09 changed btext and append passive unique key id
 SET TRANSACTION READ WRITE;
 ---------------- ACTIONS  -------------------
@@ -11,6 +11,7 @@ CREATE TABLE public.actions
     kind character varying COLLATE pg_catalog."default" NOT NULL,
     key character varying COLLATE pg_catalog."default" NOT NULL,
     btext text COLLATE pg_catalog."default",
+    jsonb jsonb,
     status integer NOT NULL DEFAULT 0,
     stored timestamp(3) with time zone NOT NULL DEFAULT now(),
     store_to timestamp(3) with time zone NOT NULL DEFAULT to_timestamp('2100-01-02'::text, 'YYYY-MM-DD'::text),
@@ -28,6 +29,7 @@ CREATE TABLE public.store
     kind character varying COLLATE pg_catalog."default" NOT NULL,
     key character varying COLLATE pg_catalog."default" NOT NULL,
     btext text COLLATE pg_catalog."default",
+    jsonb jsonb,
     status integer NOT NULL DEFAULT 0,
     stored timestamp(3) with time zone NOT NULL DEFAULT now(),
     store_to timestamp(3) with time zone NOT NULL DEFAULT to_timestamp('2100-01-02'::text, 'YYYY-MM-DD'::text),
@@ -45,6 +47,7 @@ CREATE TABLE public.temp
     kind character varying COLLATE pg_catalog."default" NOT NULL,
     key character varying COLLATE pg_catalog."default" NOT NULL,
     btext text COLLATE pg_catalog."default",
+    jsonb jsonb,
     status integer NOT NULL DEFAULT 0,
     stored timestamp(3) with time zone NOT NULL DEFAULT now(),
     store_to timestamp(3) with time zone NOT NULL DEFAULT to_timestamp('2100-01-02'::text, 'YYYY-MM-DD'::text),
@@ -62,18 +65,23 @@ CREATE TABLE public.users
     kind character varying COLLATE pg_catalog."default" NOT NULL,
     key character varying COLLATE pg_catalog."default" NOT NULL,
     btext text COLLATE pg_catalog."default",
+    jsonb jsonb,
     status integer NOT NULL DEFAULT 0,
     stored timestamp(3) with time zone NOT NULL DEFAULT now(),
     store_to timestamp(3) with time zone NOT NULL DEFAULT to_timestamp('2100-01-02'::text, 'YYYY-MM-DD'::text),
     CONSTRAINT users_type_key PRIMARY KEY (kind, key)
 );
 
-INSERT INTO public.temp(
-	 kind, key, store_to, btext)
-	VALUES ( 'aa', 'bb', '2100-01-01','{"aa":"bb":{"refs":[1,2,3]}}')
+INSERT INTO public.store(
+	 kind, key, store_to, jsonb)
+	VALUES 
+	( 'money', 'ILS', '2100-01-01','{"code":"ILS","name": "New Israeli shekel","rate": 3.3,"bid": 3.4,"ask": 3.2}'),
+	( 'money', 'JPY', '2100-01-01','{"code":"JPY","name": "Japan Yen","rate": 103,"bid": 104,"ask": 102}'),
+	( 'money', 'CAD', '2100-01-01','{"code":"CAD","name": "Canadian Dollar","rate": 1.3,"bid": 1.4,"ask": 1.2}')
+
 ON CONFLICT(kind, key) DO UPDATE SET
 	stored = now(),
-	btext = EXCLUDED.btext,
+	jsonb = EXCLUDED.jsonb,
 	store_to = EXCLUDED.store_to,
-	status = 1
+	status = 1 
 RETURNING *;
