@@ -68,9 +68,10 @@ export class StoreRequestHandler {
 
 	normDate(that : any, deflt : Date) : Date{
 		if(!that) return deflt;
-		if(that instanceof Date) return that;
-		//if(typeof that === "string") return Date.parse(that);
-		return new Date(that);
+		if(that instanceof Date && !isNaN(that.getDate())) return that;
+		var dt =  new Date(that);
+		if(dt instanceof Date && !isNaN(dt.getDate())) return dt;
+		return deflt;
 
 	}
 

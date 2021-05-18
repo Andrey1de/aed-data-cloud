@@ -11,7 +11,7 @@
     "watch-node": "nodemon dist/app.js",
     "postbuild": "copyfiles --error --up 1 src/**/*.md src/**/*.css src/**/*.pug  dist",
     "start:dev": "node  dist/app.js",
-    "deploy": "add. && git commit -m \"Heroku\" && git push heroku master"
+    "deploy": "git add . && git commit -m \"Heroku\" && git push heroku master"
   },
   "description": "aed-dаtа-cloud Postgress repository based , optimized by  data transfer cache  ",
   "author": {
@@ -30,6 +30,7 @@
     "pg": "^8.6.0",
     "pug": "^3.0.2",
     "rxjs": "^7.0.0",
+    "start": "^5.1.0",
     "uuidv4": "^6.2.7",
     "winston": "^3.3.3"
   },
