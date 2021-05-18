@@ -1,6 +1,6 @@
 {
   "name": "aed-data-cloud",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "private": true,
   "scripts": {
     "build": "tsc --build",
@@ -11,7 +11,7 @@
     "watch-node": "nodemon dist/app.js",
     "postbuild": "copyfiles --error --up 1 src/**/*.md src/**/*.css src/**/*.pug  dist",
     "start:dev": "node  dist/app.js",
-    "deploy": "git add . && git commit -m \"Heroku\" && git push heroku master"
+    "deploy": "add. && git commit -m \"Heroku\" && git push heroku master"
   },
   "description": "aed-dаtа-cloud Postgress repository based , optimized by  data transfer cache  ",
   "author": {

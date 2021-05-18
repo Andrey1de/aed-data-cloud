@@ -32,7 +32,8 @@ export class StoreController {
 				rowsRet = p.RowsResult;
 			}
 		//	let status = (rowsRet.length > 0) ? S.OK : S.NO_CONTENT;
-			res.status(S.OK).send(rowsRet).end();
+			const jsonArr = rowsRet.map(p=>p.jsonb);
+			res.status(S.OK).send(jsonArr).end();
 
 		} catch (error) {
 			res.status(S.CONFLICT).send(error);
@@ -69,7 +70,7 @@ export class StoreController {
 			}
 			let status = (row.status == 0) ? S.CREATED : S.OK;
 
-			res.status(status).send([row]).end();
+			res.status(status).send([row.jsonb]).end();
 
 		} catch (error) {
 			res.status(S.CONFLICT).send(error);
@@ -105,7 +106,8 @@ export class StoreController {
 			TaskMachine.EnqueueTask(p);
 
 			let status = (!!rowsOld) ? S.OK : S.NO_CONTENT;
-			res.status(status).send(rowsOld).end();
+			const jsonArr = rowsOld.map(p=>p.jsonb);
+			res.status(status).send(jsonArr).end();
 
 
 		} catch (error) {

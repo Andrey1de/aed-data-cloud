@@ -39,7 +39,7 @@ app.use(EX.static(path.join(__dirname, 'public')));
 app.get('/', (req: EX.Request, res: EX.Response) => {
     res.render('index', {
         title: 'AED Heroku Service @2021-05-09',
-        app: 'aed-data-cloud@' + Enviro.VERSION
+        app: 'aed-data-cloud@' + Enviro.VERSION + ' ' + Enviro.DESCRIPTION
     });
 });
 app.get('/help', (req: EX.Request, res: EX.Response) => {

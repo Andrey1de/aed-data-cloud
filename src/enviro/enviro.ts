@@ -6,7 +6,8 @@
 import  * as pg  from 'pg';
 import * as dotenv from 'dotenv';
 import * as EX from 'express';
-const VERSION = '1.2.7';
+const VERSION = '1.2.8';
+const DESCRIPTION = "Body === jsonb !!!!"
 function isTrue(str: string) {
 	str = str?.toUpperCase() || '';
 	return str === 'YES' || str === '1' || str === 'TRUE';
@@ -16,6 +17,7 @@ function isTrue(str: string) {
 
 class EnviroClass {
 	get VERSION(): string { return VERSION;}
+	get DESCRIPTION(): string { return DESCRIPTION;}
 	get PORT(): string { return process.env.PORT; }
 	get DB_SCHEMA() : string  {return process.env.DB_SCHEMA ; }
 	
@@ -95,6 +97,7 @@ class EnviroClass {
 		let str =
 `
 VERSION = ${this.VERSION}
+DESCRIPTION = ${this.DESCRIPTION}
 PORT = ${this.PORT}
 DB_SCHEMA = ${this.DB_SCHEMA}
 DB_CONNECTION_STRING = ${this.DB_CONNECTION_STRING}

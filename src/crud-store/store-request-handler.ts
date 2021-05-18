@@ -27,7 +27,7 @@ export class StoreRequestHandler {
 	public sql: string = '';
 
 	public RowsResult: StoreDto[] = [];
-
+	
 	private error: Error = undefined;
 	get Error(): Error { return this.error; }
 	private status: number = S.OK;
@@ -52,22 +52,24 @@ export class StoreRequestHandler {
 		this.isAdmin = strDb === 'admin' || strDb === 'kuku-ja-chajnik';
 		this.Store = GlobalGetMapSore(this.queue);
 		this.oneRow = !!this.key;
-		this.bodyValid = !!this.oneRow && (!!req.body && !!req.body.jsonb);
+		this.bodyValid = !!this.oneRow && (!!req.body );
 		//The row is generated in every case   but update and insert would be forbudden !!!
 		if(this.bodyValid) {
 			this.row = new StoreDto(undefined);
 			this.row.key = this.key;
 			this.row.kind = this.kind;
-			this.row.stored = this.normDate(req.body?.stored ,new Date());
-			this.row.store_to = this.normDate(req.body?.store_to,new Date('2100-01-01' ));
-			this.row.jsonb = req.body.jsonb ;
+			this.row.stored = this.normDate(req.body.stored ,new Date());
+			const dt : Date =  this.normDate(req.body.store_to,new Date('2100-01-01' ));
+			this.row.store_to = dt;
+			this.row.jsonb = req.body ;// 1.2.8 req.body === jsonb !!!
 		}
 		
 	}
 
-	normDate(that : any, deflt : Date){
+	normDate(that : any, deflt : Date) : Date{
 		if(!that) return deflt;
-		if(that instanceof Date) that;
+		if(that instanceof Date) return that;
+		//if(typeof that === "string") return Date.parse(that);
 		return new Date(that);
 
 	}
@@ -166,9 +168,10 @@ export class StoreRequestHandler {
 		}
 		else if (Enviro.LOG_RESPONSE) {
 			this.prefixDump();
-
+			
 			if (this.RowsResult.length > 0 && Enviro.LOG_RESPONSE_DATA) {
-				console.table(this.RowsResult);
+				const jsonArr = this.RowsResult.map(p=>p.jsonb);
+				console.table(jsonArr);
 			}
 
 		}

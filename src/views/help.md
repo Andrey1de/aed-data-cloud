@@ -1,6 +1,10 @@
 # aes-msg-broker
     action is example of one of queue , may be memory,
 
+# BODY : is content of jsonb !!!!{ } , may contain store_to if absent internalclculate
+ body:   jsonb : {}
+
+
 # GET retrieve data - 
     ~/store/action/kind[/key][?db=1]  db demands to sync 
         with  cloud DB Otherwise data have been readed from cache
