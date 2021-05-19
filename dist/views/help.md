@@ -1,7 +1,7 @@
 # aes-msg-broker
     action is example of one of queue , may be memory,
 # New Response full form :
-    res.send({status: S.CREATED, rows:[_rows] , msg: 'CREATED'}).status(S.CREATED).end();
+    res.send({status: S.CREATED, key: key,rows:[_rows] , msg: 'CREATED'}).status(S.CREATED).end();
     For Delete, Insert(POST) sna Upsert(PUT) may be cancelled by 
     setting environment variable RESP_UPSERT_BODY=NO
 # BODY : is content of jsonb !!!!{ } , may contain store_to if absent internalclculate

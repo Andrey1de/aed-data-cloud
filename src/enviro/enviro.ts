@@ -7,7 +7,7 @@ import  * as pg  from 'pg';
 import * as dotenv from 'dotenv';
 import * as EX from 'express';
 const VERSION = '1.2.10';
-const DESCRIPTION = "Body === jsonb {status: S.CREATED, rows:[_rows] , msg: 'CREATED'}"
+const DESCRIPTION = "Body === jsonb | {status: S.CREATED, key: key,rows:[_rows] , msg: 'CREATED'}"
 function isTrue(str: string) {
 	str = str?.toUpperCase() || '';
 	return str === 'YES' || str === '1' || str === 'TRUE';
