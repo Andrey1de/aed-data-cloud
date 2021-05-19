@@ -7,40 +7,40 @@ import { StoreRequestHandler } from './store-request-handler';
 import { EGuard } from './e-guard';
 //mport { TaskMachine} from './task-machine'
 
-function ResOk(res: Response, _rows : any[]){
+function ResOk(res: Response, _key: string, _rows : any[]){
 	
 	if(Array.isArray(_rows) && _rows.length > 0){
 		if(Enviro.RESP_UPSERT_BODY)
-			res.send({status: S.OK, rows:[_rows] , msg: 'OK'}).status(S.OK).end();
+			res.send({status: S.OK, key: _key, rows:[_rows] , msg: 'OK'}).status(S.OK).end();
 		else 
 			res.sendStatus(S.OK).end();
 		
 	}
 	else{
-		ResNoContent(res);	
+		ResNoContent(res,_key);	
 	}
 }
-function ResCreated(res: Response, _rows : any[]){
+function ResCreated(res: Response,  _key: string, _rows : any[]){
 	if(Array.isArray(_rows) && _rows.length > 0){
 		if(Enviro.RESP_UPSERT_BODY)
-			res.send({status: S.CREATED, rows:[_rows] , msg: 'CREATED'}).status(S.CREATED).end();
+			res.send({status: S.CREATED,  key: _key, rows:[_rows] , msg: 'CREATED'}).status(S.CREATED).end();
 		else 
 			res.sendStatus(S.CREATED).end();
 	}
 	else{
-		ResNoContent(res);	
+		ResNoContent(res,_key);	
 	}
 }
-function ResNoContent(res: Response){
+function ResNoContent(res: Response, _key: string){
 		if(Enviro.RESP_UPSERT_BODY)
-			res.send({status: S.NO_CONTENT, rows:[] , msg: 'NO_CONTENT'})
+			res.send({status: S.NO_CONTENT, key: _key, rows:[] , msg: 'NO_CONTENT'})
 				.status(S.NO_CONTENT).end();
 		else 
 			res.sendStatus(S.NO_CONTENT).end();
 }
 
-function ResExConflict(res: Response, info:string){
-	res.send({status: S.ROW_CONFLICT,  msg: 'ROW_CONFLICT :' + info})
+function ResExConflict(res: Response, _key: string , info:string){
+	res.send({status: S.ROW_CONFLICT,  key: _key, msg: 'ROW_CONFLICT :' + info})
 		.status(S.ROW_CONFLICT).end();
 }
 function ResApplicationError(res: Response , e:Error){
@@ -68,7 +68,7 @@ export class StoreController {
 				return ;
 			}
 			if (!p.db) {
-				rowsRet = p.Store.getMany(p.kind, p.key);
+				rowsRet = p.Store.getMany(p.kind, p.key)||[];
 				
 			} else {
 				p.sql = SqlFactory.Get(p.queue, p.kind, p.key);
@@ -82,7 +82,8 @@ export class StoreController {
 			const jsonArr = rowsRet.map(
 				p=> p.normJSonB()
 			) || [];
-			res.status(S.OK).send({status: S.OK, rows:[jsonArr] , msg: 'OK'}).end();
+			let _key =  p.key || 'ALL';
+			res.status(S.OK).send({status: S.OK, key : _key, rows:[jsonArr] , msg: 'OK'}).end();
 		} catch (e) {
 
 			ResApplicationError(res,e);
@@ -109,7 +110,7 @@ export class StoreController {
 			const old = p.Store.getItem(p.kind, p.key);
 	
 			if (old) {
-				ResExConflict(res, `The key:${p.key} just exists`);
+				ResExConflict(res,  p.key,`The key:${p.key} just exists`);
 				return;			
 			} 
 	
@@ -122,10 +123,10 @@ export class StoreController {
 				p.Dump();
 				let row = p.RowsResult[0].normJSonB();
 				row.status = 1;
-				ResCreated(res,[row]);
+				ResCreated(res, p.key,[row]);
 			}
 			else{
-				ResNoContent(res);
+				ResNoContent(res ,p.key);
 				return;
 			}
 
@@ -170,15 +171,15 @@ export class StoreController {
 				let row = p.RowsResult[0];
 				let rowOut = row.normJSonB();
 				if(p.row.status == 1){
-					ResCreated(res,[rowOut]);
+					ResCreated(res, p.key,[rowOut]);
 				} else {
-					ResOk(res,[rowOut]);
+					ResOk(res, p.key,[rowOut]);
 				
 				}
 				p.Dump();
 
 			} else {
-				ResNoContent(res);
+				ResNoContent(res, p.key);
 			
 			}
 		
@@ -226,10 +227,10 @@ export class StoreController {
 					p.status = -1;
 					return r;
 				});
-				ResOk(res,jsonArr);
+				ResOk(res, p.key,jsonArr);
 
 			} else {
-				ResNoContent(res);
+				ResNoContent(res, p.key);
 			}
 					
 
