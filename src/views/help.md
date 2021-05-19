@@ -1,20 +1,23 @@
 # aes-msg-broker
     action is example of one of queue , may be memory,
-
+# New Response full form :
+    res.send({status: S.CREATED, rows:[_rows] , msg: 'CREATED'}).status(S.CREATED).end();
+    For Delete, Insert(POST) sna Upsert(PUT) may be cancelled by 
+    setting environment variable RESP_UPSERT_BODY=NO
 # BODY : is content of jsonb !!!!{ } , may contain store_to if absent internalclculate
- body:   jsonb : {}
-
-
+body={
+    ["id":id], - retrieves id of DB
+    ["key":"ZZZ"] .... , key - duplicates the key in url 
+    ["store_to":"2100-01-01"] - demands to store till Date , if stote_to undefined - store endless
+    } these fields
+ may be contained in the body
 # GET retrieve data - 
-    ~/store/action/kind[/key][?db=1]  db demands to sync 
-        with  cloud DB Otherwise data have been readed from cache
-    ~/store/action/kind[?db=1] for one record
+    ~/store/action/kind[?db=1] for List of records in Kind
     ~/store/action/kind/key[?db=1] for one record
-    ~/store/action/kind[?db=1] -  all the records on kind
-    ~/store/action/all[?db=1 all the records in table
-
-# POST - inserts data - 
-    ~/store/action/kind/key , body={"btext":{"item": ...string} [,"store_to": date_string]}
+ # POST - inserts data - 
+    ~/store/action/kind/key , body={["id":id],["key"] .... , ["store_to":"2100-01-01"]} }
+# PUT - upsert - update/inserts data - 
+    ~/store/action/kind/key , body={["id":id],["key"] .... , ["store_to":"2100-01-01"]} }
 
 # DELETE removes data - /store/action/kind[/key][?admin=admin] 
     ~/store/action/kind for one record

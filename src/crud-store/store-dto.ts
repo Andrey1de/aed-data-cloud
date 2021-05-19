@@ -4,7 +4,7 @@
 
 
 export class StoreDto {// implements IDto{
-    //id: number = 0;// integer NOT NULL DEFAULT nextval('item_store_id_seq'::regclass),
+    id: number = 0;// integer NOT NULL DEFAULT nextval('item_store_id_seq'::regclass),
     kind: string = '';// text COLLATE pg_catalog."memory" NOT NULL,
     key: string = '';//text COLLATE pg_catalog."memory" NOT NULL,
     jsonb: any;///json (from jsonb)
@@ -19,6 +19,14 @@ export class StoreDto {// implements IDto{
     normDate(that : any | undefined) : Date{
 		if(that instanceof Date) that;
 		return new Date(that);
+
+	}
+    normJSonB( ) : any{
+       if(this.jsonb){
+            this.jsonb.id = this.id;
+            this.jsonb.status = this.status;
+        }
+        return this.jsonb;
 
 	}
     // normBody(jsonb : any | string | undefined)  : any{
@@ -36,6 +44,7 @@ export class StoreDto {// implements IDto{
 
     fromAny(that: any) {
         if (that) {
+            if(that.id)this.id = that.id;
             this.kind = that.kind;
             this.key = that.key;
             if (that.stored) 

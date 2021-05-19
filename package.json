@@ -1,6 +1,6 @@
 {
   "name": "aed-data-cloud",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "private": true,
   "scripts": {
     "build": "tsc --build",
@@ -10,10 +10,10 @@
     "watch-ts": "tsc -w",
     "watch-node": "nodemon dist/app.js",
     "postbuild": "copyfiles --error --up 1 src/**/*.md src/**/*.css src/**/*.pug  dist",
-    "start:dev": "node  dist/app.js",
+    "start:dev": "tsc --build && node  dist/app.js",
     "deploy": "git add . && git commit -m \"Heroku\" && git push heroku master"
   },
-  "description": "aed-dаtа-cloud Postgress repository based , optimized by  data transfer cache  ",
+  "description": "aed-dаtа-cloud Postgress repository based , optimized by data transfer cache  ",
   "author": {
     "name": "Andrey Dergachev @2021 <andrey1de@yahoo.com>"
   },
@@ -25,6 +25,7 @@
     "depcheck": "^1.4.0",
     "dotenv": "^8.5.1",
     "express": "^4.14.0",
+    "express-async-router": "^0.1.15",
     "http-status-codes": "^2.1.4",
     "jstransformer-markdown-it": "^2.1.0",
     "pg": "^8.6.0",

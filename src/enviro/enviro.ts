@@ -6,8 +6,8 @@
 import  * as pg  from 'pg';
 import * as dotenv from 'dotenv';
 import * as EX from 'express';
-const VERSION = '1.2.8';
-const DESCRIPTION = "Body === jsonb !!!!"
+const VERSION = '1.2.9';
+const DESCRIPTION = "Body === jsonb {status: S.CREATED, rows:[_rows] , msg: 'CREATED'}"
 function isTrue(str: string) {
 	str = str?.toUpperCase() || '';
 	return str === 'YES' || str === '1' || str === 'TRUE';
@@ -31,6 +31,7 @@ class EnviroClass {
 		{ return isTrue(process.env.LOG_RESPONSE_DATA);}
 	//bit 1
 	get LOG_SQL() : boolean { return isTrue(process.env.LOG_SQL);}
+	get RESP_UPSERT_BODY() : boolean { return isTrue(process.env.RESP_UPSERT_BODY);}
 	get Pool() : pg.Pool {return this._Pool;}
 	protected _Pool: pg.Pool = undefined;
 
@@ -44,6 +45,7 @@ class EnviroClass {
 		env.VERSION = this.VERSION;
 		env.LOG_RESPONSE = 'YES';
 		env.LOG_RESPONSE_DATA = 'YES';
+		env.RESP_UPSERT_BODY = 'YES';
 		env.LOG_SQL = 'YES';
 		dotenv.config();
 
@@ -105,6 +107,7 @@ IS_HEROKU = ${this.IS_HEROKU}
 LOG_RESPONSE = ${this.LOG_RESPONSE}
 LOG_RESPONSE_DATA = ${this.LOG_RESPONSE_DATA}
 LOG_SQL = ${this.LOG_SQL}
+RESP_UPSERT_BODY = ${this.RESP_UPSERT_BODY}
 NODE_TLS_REJECT_UNAUTHORIZED=${env.NODE_TLS_REJECT_UNAUTHORIZED}
 ` ;
 		return str;

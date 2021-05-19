@@ -1,14 +1,16 @@
 
-import { Router } from 'express';
-//import { AsyncRouter  } from 'express-async-router';
+//import { Router } from 'express';
+import { AsyncRouter  } from 'express-async-router';
 import { StoreController } from '../crud-store/store.controller';
-//const router = AsyncRouter ();
-const router = Router();
+const router = AsyncRouter ();
+//const router = Router();
 const storeController = new StoreController();
 //Get All Kind Or Kind/key - row
 router.get('/:queue/:kind/:key?', storeController.Get$);
-//Upsert(Insert/Update) Row  Kind/key - row
-router.post('/:queue/:kind/:key', storeController.Upsert$);
+//Inserts(Insert) Row  Kind/key - row
+router.post('/:queue/:kind/:key', storeController.Insert$);
+//Upserts(Insert/Update) Row  Kind/key - row
+router.put('/:queue/:kind/:key', storeController.Upsert$);
 //Delete All Kind Or Kind/key - row
 router.delete('/:queue/:kind/:key', storeController.Delete$);
 export const StoreRouter = router;  

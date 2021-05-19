@@ -39,6 +39,7 @@ function SetKey(req: EX.Request, res: EX.Response) {
     const num = +val || -1;
 
     if (key === 'dump' && num >= 0){
+        env.RESP_UPSERT_BODY = (num & 8) ? 'YES' : 'NO';   
         env.LOG_RESPONSE = (num & 4) ? 'YES' : 'NO';   
         env.LOG_RESPONSE_DATA = (num & 2) ? 'YES' : 'NO';   
         env.LOG_SQL = (num & 1) ? 'YES' : 'NO';
@@ -48,7 +49,7 @@ function SetKey(req: EX.Request, res: EX.Response) {
         res.send(retRes).status(S.OK).end();
 
  
-    } else if(!!val) {
+    } else if(!!key && !!val) {
         process.env[key] = val;
         if (val) {
             val = env[key];

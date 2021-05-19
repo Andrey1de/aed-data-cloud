@@ -49,7 +49,7 @@ app.get('/help', (req: EX.Request, res: EX.Response) => {
 
 app.use('/env', EnviroRouter);
 app.use('/cloud', StoreRouter);
-app.use('/LoggerRouter', StoreRouter);
+app.use('/LoggerRouter', LoggerRouter);
 
 
 

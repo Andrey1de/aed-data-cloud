@@ -1,28 +1,75 @@
 import { Request, Response } from 'express';
 import * as S from '../common/http-status';
 import { SqlFactory } from './sql-factory';
+import { Enviro } from '../enviro/enviro';
 import  {StoreDto} from './store-dto'
 import { StoreRequestHandler } from './store-request-handler';
 import { EGuard } from './e-guard';
-import { TaskMachine} from './task-machine'
+//mport { TaskMachine} from './task-machine'
 
+function ResOk(res: Response, _rows : any[]){
+	
+	if(Array.isArray(_rows) && _rows.length > 0){
+		if(Enviro.RESP_UPSERT_BODY)
+			res.send({status: S.OK, rows:[_rows] , msg: 'OK'}).status(S.OK).end();
+		else 
+			res.sendStatus(S.OK).end();
+		
+	}
+	else{
+		ResNoContent(res);	
+	}
+}
+function ResCreated(res: Response, _rows : any[]){
+	if(Array.isArray(_rows) && _rows.length > 0){
+		if(Enviro.RESP_UPSERT_BODY)
+			res.send({status: S.CREATED, rows:[_rows] , msg: 'CREATED'}).status(S.CREATED).end();
+		else 
+			res.sendStatus(S.CREATED).end();
+	}
+	else{
+		ResNoContent(res);	
+	}
+}
+function ResNoContent(res: Response){
+		if(Enviro.RESP_UPSERT_BODY)
+			res.send({status: S.NO_CONTENT, rows:[] , msg: 'NO_CONTENT'})
+				.status(S.NO_CONTENT).end();
+		else 
+			res.sendStatus(S.NO_CONTENT).end();
+}
 
-
+function ResExConflict(res: Response, info:string){
+	res.send({status: S.ROW_CONFLICT,  msg: 'ROW_CONFLICT :' + info})
+		.status(S.ROW_CONFLICT).end();
+}
+function ResApplicationError(res: Response , e:Error){
+	res.send({status: S.APPLICATION_ERROR,  msg: 'APPLICATION_ERROR : ' + e.message + '\n' + e.stack})
+		.status(S.APPLICATION_ERROR).end();
+}
+function ResParametersError(res: Response , e:Error){
+	res.send({status: S.PARAMETERS_ERROR,  msg: 'PARAMETERS_ERROR : ' + e.message })
+		.status(S.PARAMETERS_ERROR).end();
+}
 export class StoreController {
 
-	
+
+
 	public async Get$(req: Request, res: Response) {
 		var rowsRet: StoreDto[] = [];
 		try {
 
-			let p: StoreRequestHandler = new StoreRequestHandler(req, res,
-				'GET',EGuard.Kind | EGuard.Kind);
+			let p: StoreRequestHandler = new
+			 StoreRequestHandler(req, res,
+				'GET',EGuard.Kind );
 
-			if (p.Validate() != S.OK) {
-				return;
+			if (p.Validate() != S.OK)   {
+				ResParametersError(res,p.Error);
+				return ;
 			}
 			if (!p.db) {
 				rowsRet = p.Store.getMany(p.kind, p.key);
+				
 			} else {
 				p.sql = SqlFactory.Get(p.queue, p.kind, p.key);
 
@@ -31,21 +78,70 @@ export class StoreController {
 				p.Dump();
 				rowsRet = p.RowsResult;
 			}
-		//	let status = (rowsRet.length > 0) ? S.OK : S.NO_CONTENT;
-			const jsonArr = rowsRet.map(p=>p.jsonb);
-			res.status(S.OK).send(jsonArr).end();
+			let status = (rowsRet.length > 0) ? S.OK : S.NO_CONTENT;
+			const jsonArr = rowsRet.map(
+				p=> p.normJSonB()
+			) || [];
+			res.status(S.OK).send({status: S.OK, rows:[jsonArr] , msg: 'OK'}).end();
+		} catch (e) {
 
-		} catch (error) {
-			res.status(S.CONFLICT).send(error);
+			ResApplicationError(res,e);
 		}
 	}
 
-	///============================================================
+		///============================================================
 	///	Inserts one row or if uuser has admin rights many row 
-	/// by low of Get
-	/// Returns old deleted rows;
+	/// POST
+	/// Returns inserted row with  id and status inbound in body !!!;
 	//==============================================================
 
+	public async Insert$(req: Request, res: Response) {
+
+
+		try {
+			let p: StoreRequestHandler = new StoreRequestHandler(req, res,
+				'INSERT', EGuard.Kind | EGuard.Kind | EGuard.Key | EGuard.Body);
+
+			if (p.Validate() != S.OK)   {
+				ResParametersError(res,p.Error);
+				return ;
+			}
+			const old = p.Store.getItem(p.kind, p.key);
+	
+			if (old) {
+				ResExConflict(res, `The key:${p.key} just exists`);
+				return;			
+			} 
+	
+			p.sql = SqlFactory.InsertRow(p.queue, p.row);
+			//let row = p.row;
+			p.RowsResult = await p.Run$();
+	
+			if(p.RowsResult?.length > 0){
+				p.Store.setItem(p.kind, p.key,p.RowsResult[0]);
+				p.Dump();
+				let row = p.RowsResult[0].normJSonB();
+				row.status = 1;
+				ResCreated(res,[row]);
+			}
+			else{
+				ResNoContent(res);
+				return;
+			}
+
+		} catch (e) {
+			console.error(e);
+			ResApplicationError(res,e);
+
+		}
+	
+	}
+
+	///============================================================
+	///	Upserts one row or if uuser has admin rights many row 
+	/// PUT
+	/// Returns upserted row with id and status inbound in body !!!;
+	//==============================================================
 	public async Upsert$(req: Request, res: Response) {
 
 
@@ -53,28 +149,43 @@ export class StoreController {
 			let p: StoreRequestHandler = new StoreRequestHandler(req, res,
 				'INSERT', EGuard.Kind | EGuard.Kind | EGuard.Key | EGuard.Body);
 
-			if (p.Validate() != S.OK) {
-				return;
+			if (p.Validate() != S.OK)   {
+				ResParametersError(res,p.Error);
+				return ;
 			}
-			const old = p.Store.setItem(p.kind, p.key, p.row);
+			const old = p.Store.getItem(p.kind, p.key);
 	
 			p.sql = SqlFactory.UpsertRow(p.queue, p.row);
-			let row = p.row;
+		
+			
+			
 			if (!old) {
-				await p.Run$();
-				row = p.RowsResult[0];
-				p.Dump();
+				p.RowsResult = await p.Run$();
 			} else {
-				TaskMachine.EnqueueTask(p);
-				
-				row.status = 1;
+			//	TaskMachine.EnqueueTask(p);
+				p.RowsResult = await p.Run$();
 			}
-			let status = (row.status == 0) ? S.CREATED : S.OK;
+	
+			if(p.RowsResult.length > 0){
+				let row = p.RowsResult[0];
+				let rowOut = row.normJSonB();
+				if(p.row.status == 1){
+					ResCreated(res,[rowOut]);
+				} else {
+					ResOk(res,[rowOut]);
+				
+				}
+				p.Dump();
 
-			res.status(status).send([row.jsonb]).end();
+			} else {
+				ResNoContent(res);
+			
+			}
+		
 
-		} catch (error) {
-			res.status(S.CONFLICT).send(error);
+		} catch (e) {
+			console.error(e);
+			ResApplicationError(res,e);
 
 		}
 	
@@ -93,55 +204,44 @@ export class StoreController {
 
 			let p: StoreRequestHandler = new StoreRequestHandler(req, res,
 				'DELETE',EGuard.Kind | EGuard.Kind | EGuard.Key);
-			rowsOld = p.Store.getMany(p.kind, p.key);
-
-			if (p.Validate() != S.OK) {
-				return;
+	
+			if (p.Validate() != S.OK)   {
+				ResParametersError(res,p.Error);
+				return ;
 			}
+			rowsOld = p.Store.getMany(p.kind, p.key);
 			// if (!p.isAdmin && !p.oneRow) {
 			// 	res.send('Tis user has no acess rights for group DELETE operation')
 			// 		.sendStatus(S.FORBIDDEN).end();
 			// 	return;
 			// }
 			p.sql = SqlFactory.Delete(p.queue, p.kind, p.key);
-			TaskMachine.EnqueueTask(p);
+			//TaskMachine.EnqueueTask(p);
+			p.RowsResult = await p.Run$();
 
-			let status = (!!rowsOld && rowsOld.length > 0) ? S.OK : S.NO_CONTENT;
-			const jsonArr = rowsOld.map(p=>p.jsonb);
-			res.status(status).send(jsonArr).end();
+			//let status = (!!rowsOld && rowsOld.length > 0) ? S.OK : S.NO_CONTENT;
+			if(p.RowsResult.length > 0){
+				const jsonArr = rowsOld.map(p=>{
+					let r = p.normJSonB();
+					p.status = -1;
+					return r;
+				});
+				ResOk(res,jsonArr);
+
+			} else {
+				ResNoContent(res);
+			}
+					
 
 
-		} catch (error) {
-			res.status(S.CONFLICT).send(error);
+		} catch (e) {
+			console.error(e);
+			ResApplicationError(res,e);
+
 		}
+	
 	}
 
 }
-//	public async Update$(req: Request, res: Response) {
-
-//		let p: StoreRequestHandler = new StoreRequestHandler(req, res,
-//			'UPDATE', EGuard.Kind | EGuard.Kind | EGuard.Key | EGuard.Body);
-
-//		try {
-//			if (p.Validate() != S.OK) {
-//				return;
-//			}
-//			const old = p.Store.setItem(p.kind, p.key, p.row);
 
 
-//			const status = (old) ? S.CREATED : S.OK;
-//			//This is more relaible to use Upsert !!!!
-//			p.sql = SqlFactory.UpsertRow(p.queue, p.row);
-//			TaskMachine.EnqueueTask(p);
-//			res.send([p.row]).sendStatus(status).end();
-//		} catch (error) {
-//			res.status(S.CONFLICT).send(error);
-
-//		}
-
-
-
-//	}
-
-
-//export const StoreServer: StoreServerClass = new StoreServerClass()

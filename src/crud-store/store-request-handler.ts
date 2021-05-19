@@ -35,7 +35,7 @@ export class StoreRequestHandler {
 
 	constructor(private req: Request, private res: Response,
 		public readonly verb: string,
-		public readonly flags: EGuard = EGuard.Zero)
+		public readonly flags: EGuard )
 	{
 		this.queue = (req.params?.queue.toString() || 'memory').toLowerCase();
 		this.kind = (req.params?.kind || '').toLowerCase();
@@ -46,27 +46,35 @@ export class StoreRequestHandler {
 		}
 	
 		//let body = req.body?.item || req.body;
-		const strDb = (req.query?.db || '').toLocaleString();
-		this.db = strDb === '1' || strDb.startsWith('y') || strDb.startsWith('t');
+		const strDb = (req.query?.db || '').toString().toLowerCase();
+		this.db = (strDb === '1' || strDb.startsWith('yes') || strDb.startsWith('tru'));
 		const strAdmin = (req.query?.admin || '').toLocaleString();
 		this.isAdmin = strDb === 'admin' || strDb === 'kuku-ja-chajnik';
 		this.Store = GlobalGetMapSore(this.queue);
 		this.oneRow = !!this.key;
 		this.bodyValid = !!this.oneRow && (!!req.body );
+		
+			
 		//The row is generated in every case   but update and insert would be forbudden !!!
-		if(this.bodyValid) {
+		if(req.body) {
 			this.row = new StoreDto(undefined);
-			this.row.key = this.key;
+			this.row.key = this.key || req.body.key ;
+			req.body.key = this.row.key;
+			if(req.body.store_to) {
+				this.row.store_to =this.normDate(req.body.store_to,new Date('2100-01-01'));
+				req.body.store_to = this.row.store_to;
+
+			}
 			this.row.kind = this.kind;
-			this.row.stored = this.normDate(req.body.stored ,new Date());
-			const dt : Date =  this.normDate(req.body.store_to,new Date('2100-01-01' ));
-			this.row.store_to = dt;
-			this.row.jsonb = req.body ;// 1.2.8 req.body === jsonb !!!
+//Store_to may be supplied bu jsonbody !!!
+			this.row.stored = new Date();
+				this.row.jsonb = req.body ;// 1.2.9 req.body === jsonb !!!
+			
 		}
 		
 	}
 
-	normDate(that : any, deflt : Date) : Date{
+	normDate(that : any, deflt : Date | undefined = undefined) : Date{
 		if(!that) return deflt;
 		if(that instanceof Date && !isNaN(that.getDate())) return that;
 		var dt =  new Date(that);
@@ -83,12 +91,12 @@ export class StoreRequestHandler {
 		this.res.setHeader('content-kind', 'application/json');
 		if (!this.Store) {
 			strError += ((!!strError) ? ' AND ' : '') + `Bad parameter: queue:` + this.queue;
-			this.status = S.BAD_REQUEST;
+			//this.status = S.BAD_REQUEST;
 		}
 
 		if ((this.flags & EGuard.Kind) && !this.kind) {//(this.flags & EGuard.Type) && this.kind
 			strError += ((!!strError) ? ' AND ' : '') + `Bad parameter: kind:` + this.kind;
-			this.status = S.BAD_REQUEST;
+			//this.status = S.BAD_REQUEST;
 
 		}
 
@@ -102,17 +110,17 @@ export class StoreRequestHandler {
 			strError += ((!!strError) ? ' AND ' : '') + `Bad parameter: body `;
 		}
 
-		if (this.status != S.OK) {
+		if (!!strError ) {
 			this.error = new Error(strError);
-
+			this.status = S.PARAMETERS_ERROR;
 			console.error(this.Error);
-			this.res.send(strError).status(this.status).end();
+		//	this.res.send(strError).status(this.status).end();
 		}
 		return this.status;
 
 	}
 	
-	public async Run$(toDump: boolean = true) {
+	public async Run$(toDump: boolean = true) : Promise<StoreDto[]>{
 		const isDelete = this.verb.toUpperCase() === 'DELETE';
 		let client: PoolClient = undefined!;
 		
@@ -132,6 +140,7 @@ export class StoreRequestHandler {
 				return row;
 		
 			}) || [];
+			return this.RowsResult;
 		//	this.Dump();
 		//	logSqlRes(this.verb, this, this.RowsResult);
 
