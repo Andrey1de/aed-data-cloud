@@ -11,7 +11,7 @@ function ResOk(res: Response, _key: string, _rows : any[]){
 	
 	if(Array.isArray(_rows) && _rows.length > 0){
 		if(Enviro.RESP_UPSERT_BODY)
-			res.send({status: S.OK, key: _key, rows:[_rows] , msg: 'OK'}).status(S.OK).end();
+			res.send({status: S.OK, key: _key, rows:_rows , msg: 'OK'}).status(S.OK).end();
 		else 
 			res.sendStatus(S.OK).end();
 		
@@ -23,7 +23,7 @@ function ResOk(res: Response, _key: string, _rows : any[]){
 function ResCreated(res: Response,  _key: string, _rows : any[]){
 	if(Array.isArray(_rows) && _rows.length > 0){
 		if(Enviro.RESP_UPSERT_BODY)
-			res.send({status: S.CREATED,  key: _key, rows:[_rows] , msg: 'CREATED'}).status(S.CREATED).end();
+			res.send({status: S.CREATED,  key: _key, rows:_rows , msg: 'CREATED'}).status(S.CREATED).end();
 		else 
 			res.sendStatus(S.CREATED).end();
 	}
