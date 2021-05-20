@@ -68,7 +68,7 @@ export class StoreRequestHandler {
 			this.row.kind = this.kind;
 //Store_to may be supplied bu jsonbody !!!
 			this.row.stored = new Date();
-				this.row.jsonb = req.body ;// 1.2.10 req.body === jsonb !!!
+				this.row.jsonb = req.body ;// 1.2.11 req.body === jsonb !!!
 			
 		}
 		
