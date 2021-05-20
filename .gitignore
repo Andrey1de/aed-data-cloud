@@ -11,7 +11,7 @@
 *.sln.docstates
 *.map
 *.js
-/dist.
+/dist
 /log
 /logs
 .env

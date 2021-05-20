@@ -82,8 +82,8 @@ export class StoreController {
 			const jsonArr = rowsRet.map(
 				p=> p.normJSonB()
 			) || [];
-			let _key =  p.key || 'ALL';
-			res.status(S.OK).send({status: S.OK, key : _key, rows:[jsonArr] , msg: 'OK'}).end();
+			let key =  p.key || 'ALL';
+			ResOk(res,key,jsonArr);
 		} catch (e) {
 
 			ResApplicationError(res,e);
