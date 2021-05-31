@@ -87,21 +87,20 @@ RETURNING *;`
             `'${this.normDate(row.store_to).toISOString()}'` : 'DEFAULT';
         const jsonb = JSON.stringify(row.jsonb) ;
             //TO ENCODE ????
-        const sql = '';
-        if(!!row.id) { sql = 
+        let sql = '';
+        if(!!row.id) { 
+sql = 
 `INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
     id, kind, key, store_to, jsonb)
     VALUES ('${row.id}','${row.kind}','${row.key}',${store_to},'${jsonb}')
 RETURNING *;`
-           
-        } else { sql = 
+        } else { 
+sql = 
 `INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
      kind, key, store_to, jsonb)
     VALUES ('${row.kind}','${row.key}',${store_to},'${jsonb}')
 RETURNING *;`
-
         }
-
         return sql;
     }
 
