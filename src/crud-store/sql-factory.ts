@@ -18,7 +18,9 @@ class SqlFactoryClass {
     // SELECT id, kind, key, jsonb, status, stored, store_to
 	// FROM public.store;
     Get(table: string, kind: string, key: string = undefined!): string {
-        let sql = `SELECT id, kind, key, jsonb, status, stored, store_to FROM ${Enviro.DB_SCHEMA}.${table} `;
+        let sql = 
+`SELECT id, kind, key, jsonb, status, stored, store_to 
+FROM ${Enviro.DB_SCHEMA}.${table} `;
      
         if (!(kind.toLowerCase() == 'all' && !key)) {
 
@@ -26,7 +28,6 @@ class SqlFactoryClass {
             if(key) {
                 sql += ` AND key='${key}' `
             }
-
 		}
         sql += ';';
         return sql;
@@ -35,12 +36,10 @@ class SqlFactoryClass {
 
         let sql = `DELETE FROM ${Enviro.DB_SCHEMA}.${table} `;
         if (!(kind.toLocaleLowerCase() == 'all' && !key)) {
-
             sql += `WHERE kind='${kind}'`;
             if(key) {
                 sql += ` AND key='${key}' `
             }
-
 		}
         
         sql += ' RETURNING *;';
@@ -52,21 +51,33 @@ class SqlFactoryClass {
             `'${this.normDate(row.store_to).toISOString()}'` : 'DEFAULT';
          const jsonb = JSON.stringify(row.jsonb) ;
          //TO ENCODE ????
-
-        const sql =
-
-            `
-INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
-	 kind, key, jsonb , store_to)
-	VALUES ('${row.kind}','${row.key}','${jsonb}',${store_to})
+        let sql : string;
+        if(!!row.id) 
+        {
+sql = `INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
+    id, kind, key, jsonb , store_to)
+    VALUES ('${row.id}','${row.kind}','${row.key}','${jsonb}',${store_to})
 ON CONFLICT(kind, key) DO UPDATE SET
-	stored = now(),
-	jsonb = EXCLUDED.jsonb,
-	store_to = EXCLUDED.store_to,
-	status = 1 
-RETURNING *;
-`
-
+    stored = now(),
+    id = EXCLUDED.id,
+    jsonb = EXCLUDED.jsonb,
+    store_to = EXCLUDED.store_to,
+    status = 1 
+RETURNING *;`          
+        } 
+        else 
+        {
+sql = `INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
+    kind, key, jsonb , store_to)
+    VALUES ('${row.kind}','${row.key}','${jsonb}',${store_to})
+ON CONFLICT(kind, key) DO UPDATE SET
+    stored = now(),
+    jsonb = EXCLUDED.jsonb,
+    store_to = EXCLUDED.store_to,
+    status = 1 
+RETURNING *;`
+        }
+      
         return sql;
     }
 
@@ -76,13 +87,20 @@ RETURNING *;
             `'${this.normDate(row.store_to).toISOString()}'` : 'DEFAULT';
         const jsonb = JSON.stringify(row.jsonb) ;
             //TO ENCODE ????
-        const sql =
-           `
-INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
-	 kind, key, store_to, jsonb)
-	VALUES ('${row.kind}','${row.key}',${store_to},'${jsonb}')
-RETURNING *;
-`
+        const sql = '';
+        if(!!row.id) { sql = 
+`INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
+    id, kind, key, store_to, jsonb)
+    VALUES ('${row.id}','${row.kind}','${row.key}',${store_to},'${jsonb}')
+RETURNING *;`
+           
+        } else { sql = 
+`INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
+     kind, key, store_to, jsonb)
+    VALUES ('${row.kind}','${row.key}',${store_to},'${jsonb}')
+RETURNING *;`
+
+        }
 
         return sql;
     }
@@ -101,9 +119,7 @@ RETURNING *;
     `jsonb=${jsonb} ` +
 `WHERE kind='${row.kind}' AND key='${row.key}' ` +
 `RETURNING * ;`
-
-        return sql;
-
+    return sql;
     }
 
 }

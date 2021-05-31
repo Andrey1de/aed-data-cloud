@@ -6,7 +6,7 @@ import * as S from '../common/http-status';
 import { EGuard } from "./e-guard";
 import { GlobalGetMapSore, StoreCahche } from "./store-cache";
 import { StoreDto } from "./store-dto";
-import { stream } from "winston";
+//import { stream } from "winston";
 
 
 
@@ -40,8 +40,13 @@ export class StoreRequestHandler {
 		this.queue = (req.params?.queue.toString() || 'memory').toLowerCase();
 		this.kind = (req.params?.kind || '').toLowerCase();
 		this.key = req.params?.key || '';
-		if(this.queue == 'store' && this.kind  == 'money') {
+		if(this.queue == 'store' && this.kind  == 'change') {
 			this.key = this.key.toUpperCase();
+
+		}
+		else if(this.queue == 'users' ) {
+			this.key = ( req.body?.user || this.key).toLowerCase();
+			if(req.body) req.body.key = this.key;
 
 		}
 	
@@ -49,13 +54,13 @@ export class StoreRequestHandler {
 		const strDb = (req.query?.db || '').toString().toLowerCase();
 		this.db = (strDb === '1' || strDb.startsWith('yes') || strDb.startsWith('tru'));
 		const strAdmin = (req.query?.admin || '').toLocaleString();
-		this.isAdmin = strDb === 'admin' || strDb === 'kuku-ja-chajnik';
+		this.isAdmin = strAdmin === 'admin' || strDb === 'kuku-ja-chajnik';
 		this.Store = GlobalGetMapSore(this.queue);
 		this.oneRow = !!this.key;
 		this.bodyValid = !!this.oneRow && (!!req.body );
 		
 			
-		//The row is generated in every case   but update and insert would be forbudden !!!
+		//The row is generated in every case   but update and insert would be forbidden !!!
 		if(req.body) {
 			this.row = new StoreDto(undefined);
 			this.row.key = this.key || req.body.key ;
@@ -68,7 +73,7 @@ export class StoreRequestHandler {
 			this.row.kind = this.kind;
 //Store_to may be supplied bu jsonbody !!!
 			this.row.stored = new Date();
-				this.row.jsonb = req.body ;// 1.2.11 req.body === jsonb !!!
+			this.row.jsonb = req.body ;// 1.2.11 req.body === jsonb !!!
 			
 		}
 		

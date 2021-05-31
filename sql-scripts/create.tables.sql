@@ -71,6 +71,22 @@ CREATE TABLE public.users
     store_to timestamp(3) with time zone NOT NULL DEFAULT to_timestamp('2100-01-02'::text, 'YYYY-MM-DD'::text),
     CONSTRAINT users_type_key PRIMARY KEY (kind, key)
 );
+---------------- companies  -------------------
+DROP TABLE IF EXISTS public.companies;
+DROP SEQUENCE IF EXISTS public.companies_id_seq;
+CREATE SEQUENCE IF NOT EXISTS public.companies_id_seq;
+CREATE TABLE public.companies
+(
+    id integer NOT NULL DEFAULT nextval('companies_id_seq'::regclass),
+    kind character varying COLLATE pg_catalog."default" NOT NULL,
+    key character varying COLLATE pg_catalog."default" NOT NULL,
+    btext text COLLATE pg_catalog."default",
+    jsonb jsonb,
+    status integer NOT NULL DEFAULT 0,
+    stored timestamp(3) with time zone NOT NULL DEFAULT now(),
+    store_to timestamp(3) with time zone NOT NULL DEFAULT to_timestamp('2100-01-02'::text, 'YYYY-MM-DD'::text),
+    CONSTRAINT companies_type_key PRIMARY KEY (kind, key)
+);
 
 INSERT INTO public.store(
 	 kind, key, store_to, jsonb)

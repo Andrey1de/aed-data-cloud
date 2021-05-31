@@ -53,8 +53,6 @@ function ResParametersError(res: Response , e:Error){
 }
 export class StoreController {
 
-
-
 	public async Get$(req: Request, res: Response) {
 		var rowsRet: StoreDto[] = [];
 		try {
@@ -72,9 +70,7 @@ export class StoreController {
 				
 			} else {
 				p.sql = SqlFactory.Get(p.queue, p.kind, p.key);
-
 				await p.Run$();
-
 				p.Dump();
 				rowsRet = p.RowsResult;
 			}
