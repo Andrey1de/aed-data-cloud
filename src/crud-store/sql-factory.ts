@@ -11,14 +11,15 @@ import { Enviro }from '../enviro/enviro';
      status : number;
 
     constructor(public row:StoreDto){
-        this.kind = `'${row.kind || ''}'` || '';
-        this.key = `'${row.key}'` || '';
+        this.kind = `'${row.kind || ''}'`;
+        this.key = `'${row.key || ''}'`;
         this.item =  (row.item) ? `'${JSON.stringify(row.item)}'` : 'NULL';
         this.base64 = (row.base64) ? `'${row.base64}'` : 'NULL';//row.base64 || '';
         this.life_seconds = +row.life_seconds;//+row.life_seconds;
-        let guidStr = ('' + row.kind + '/' + row.key).toLowerCase();
-        this.guid = (row.guid) ? `'${row.guid}'` : `uuid_in(md5('${guidStr}')::cstring)`;
+        this.guid = (row.guid) ? `'${row.guid}'` : `NULL`;
         this.status = +row.status;
+       // let guidStr = ('' + row.kind + '/' + row.key).toLowerCase();
+       // this.guid = (row.guid) ? `'${row.guid}'` : `uuid_in(md5('${guidStr}')::cstring)`;
     }
 }
 
@@ -63,12 +64,14 @@ WHERE kind='${kind}' ${sql1} ;`;
       const sql = 
 `INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
 	kind, key, base64, item, status, life_seconds, guid)
-	VALUES (${row.kind},${row.key},${row.base64},${row.item}, ${row.status} ,${row.life_seconds},${row.guid})
+	VALUES (${row.kind},${row.key},${row.base64},
+        ${row.item}, ${row.status} ,${row.life_seconds},${row.guid})
 ON CONFLICT(kind, key) DO UPDATE SET
 	stored = now(),
 	base64 = EXCLUDED.base64,
 	item = EXCLUDED.item,
 	life_seconds = EXCLUDED.life_seconds,
+	guid = EXCLUDED.guid,
     status = 1 
 RETURNING kind,key,status,guid;`
 //console.log(sql);
