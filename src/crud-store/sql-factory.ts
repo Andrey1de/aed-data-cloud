@@ -70,8 +70,7 @@ ON CONFLICT(kind, key) DO UPDATE SET
 	base64 = EXCLUDED.base64,
 	item = EXCLUDED.item,
 	life_seconds = EXCLUDED.life_seconds,
-	//guid = EXCLUDED.guid,
-	status = 1 
+    status = 1 
 RETURNING kind,key,status,guid;`
 //console.log(sql);
         return sql;
@@ -101,7 +100,6 @@ RETURNING kind,key,status,guid;`
 	base64 = ${row.base64},
 	item = ${row.item},
 	life_seconds = ${row.life_seconds},
-//	guid = ${row.guid},
 	status = status + 1 
 WHERE kind='${row.kind}' AND key='${row.key}'
 RETURNING kind,key,status,guid;`
