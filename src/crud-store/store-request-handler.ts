@@ -159,10 +159,10 @@ export class StoreRequestHandler {
 						console.log('RunUpdate$',this.verb,row);
 					}
 				}
+				this.Store.setItem(row.kind, row.key,row);
 				this.RowsResult.push(row);
 				return row;
 			}
-			
 			return null;
 		} catch (e) {
 			this.error = e;
@@ -179,19 +179,21 @@ export class StoreRequestHandler {
 		let client: PoolClient = undefined!;
 		try {
 			client = await Enviro.Pool.connect();
-			let row = this.bodyRow;
 			this.RowsResult = [];
 			const	{rows}   = await client.query(this.sql);
 			if(rows && rows.length > 0){
 				const{kind,key,status,guid}  = rows[0];
-				row.guid = guid;
-				row.status = -1;
-				if(env.LOG_RESPONSE_DATA){
-					console.log('RunDelete$',this.verb,row);
+				let row = this.Store.removeItem(kind, key);
+				if(!!row){
+					this.RowsResult.push(row);
+					row.status = -1;
+					row.guid = guid;	
+					if(env.LOG_RESPONSE_DATA){
+						console.log('RunDelete$',this.verb,row);
+					}
 				}
-				this.RowsResult.push(row);
+
 				return row;
-		
 			}
 			
 			return null;

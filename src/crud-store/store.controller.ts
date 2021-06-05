@@ -61,7 +61,6 @@ export class StoreController {
 
 			let p: StoreRequestHandler = 
 				new  StoreRequestHandler(req, res,'GET',EGuard.Kind );
-			
 
 			if (p.Validate() != S.OK)   {
 				ResParametersError(res,p.Error);
@@ -92,47 +91,36 @@ export class StoreController {
 	///==============================================================
 
 	public async Insert$(req: Request, res: Response) {
-		let _key : string = '';
+		let key = '';
+		let kind = '';
 		try {
 			let p: StoreRequestHandler = new StoreRequestHandler(req, res,
-				'INSERT', EGuard.Kind | EGuard.Kind | EGuard.Key | EGuard.Body);
-
+				req.method,  EGuard.Kind | EGuard.Key | EGuard.Body);
 			if (p.Validate() != S.OK)   {
 				ResParametersError(res,p.Error);
 				return ;
 			}
-			let old = p.Store.getItem(p.kind, p.key);
-			if (!old) {
-				p.sql = SqlFactory.Get(p.queue, p.kind, p.key);
-				p.RowsResult = await p.RunGet$();
-				old = (p.RowsResult?.length > 0)  ?p.RowsResult[0] : undefined;
-			} 
-			if (old) {
-				res.send(`The key:${p.kind}/:${p.key} just exists`)
-					.status(S.ROW_CONFLICT).end();
-				
-				return;			
-			} 
-			//Insert in cache forwarded 
-			p.Store.setItem(p.bodyRow.kind, p.bodyRow.key, p.bodyRow);
+			key = p.key;
+			kind = p.kind;
 
-			p.sql = SqlFactory.UpsertRow(p.queue, p.bodyRow);
-			p.RowsResult = await p.RunUpdate$();
+			p.sql = SqlFactory.InsertRow(p.queue, p.bodyRow);
+			const	row0 = await p.RunUpdate$();
 	
-			if(p.RowsResult?.length > 0){
-				const row0 = p.RowsResult[0];
-				res.send({kind:p.kind,key:p.key,status:row0.status,guid:row0.guid})
+			if(!!row0){
+				res.send({kind:row0.kind,key:row0.key,status:row0.status,guid:row0.guid})
 					.status(S.CREATED).end();
-				//res.sendStatus(S.CREATED).end();
+					return;
 			}
-			else{
-				p.Store.removeItem(p.bodyRow.kind, p.bodyRow.key);
-				res.sendStatus(S.NO_CONTENT).end();
-			}
+
 		} catch (e) {
+			if(e.code != '23505'){
+				ResApplicationError(res,e);	
+			}
 			console.error(e);
-			ResApplicationError(res,e);
 		}
+		res.status(S.ROW_CONFLICT).send(`ROW_CONFLICT:Item[${kind}/${key}] just exists`)
+			.end();
+
 	}
 
 	///============================================================
@@ -145,8 +133,7 @@ export class StoreController {
 		let _key : string = '';
 		try {
 			let p: StoreRequestHandler = new StoreRequestHandler(req, res,
-				'UPSERT', EGuard.Kind | EGuard.Key | EGuard.Body);
-		
+				req.method, EGuard.Kind | EGuard.Key | EGuard.Body);
 	
 			if (p.Validate() != S.OK)   {
 				ResParametersError(res,p.Error);
@@ -158,17 +145,13 @@ export class StoreController {
 			p.sql =  (!old)
 				? SqlFactory.UpsertRow(p.queue, p.bodyRow)
 				: SqlFactory.UpdateRow(p.queue, p.bodyRow);
-		
-			p.RowsResult = await p.RunUpdate$();
-		
-
-			if(p.RowsResult.length > 0){
-				const row0 = p.RowsResult[0];
-	
+			const row0 = await p.RunUpdate$();
+			if(!!row0){
 				let httpStatus = (row0.status == 0) ? S.CREATED : S.OK;
 					//p.Dump();
 				//res.sendStatus(httpStatus).end();
-				res.send({kind:p.kind,key:p.key,status:row0.status,guid:row0.guid})
+				res.send({kind:p.kind,key:p.key,
+						status:row0.status,guid:row0.guid})
 					.status(httpStatus).end();
 
 			} else {
@@ -187,13 +170,12 @@ export class StoreController {
 	///==============================================================
 
 	public async Delete$(req: Request, res: Response) {
-			let _key : string = '';
 	
 		try {
 
 			let p: StoreRequestHandler = new StoreRequestHandler(req, res,
-				'DELETE',EGuard.Kind | EGuard.Kind | EGuard.Key);
-			_key = p.key || 'ALL';
+				req.method, EGuard.Kind | EGuard.Key);
+			let _key = p.key || 'ALL';
 
 			if (p.Validate() != S.OK)   {
 				ResParametersError(res,p.Error);
@@ -207,15 +189,13 @@ export class StoreController {
 			// }
 			p.sql = SqlFactory.Delete(p.queue, p.kind, p.key);
 			//TaskMachine.EnqueueTask(p);
-			p.RowsResult = await p.RunDelete$();
+			const row0 = await p.RunDelete$();
 
-			if(p.RowsResult.length > 0){
-				const row0 = p.RowsResult[0];
-				//res.sendStatus(S.OK).end();
+			if(!!row0){
 				 res.send({kind:p.kind,key:p.key,status:-1,guid: row0.guid})
 				 	.status(S.OK).end();
 			} else {
-				res.sendStatus(S.NO_CONTENT).end();
+				res.send((`NO_CONTENT:Item[${p.kind}/${p.key}] doesn't exists`)).status(S.NO_CONTENT).end();
 			}	
 		} catch (e) {
 			console.error(e);

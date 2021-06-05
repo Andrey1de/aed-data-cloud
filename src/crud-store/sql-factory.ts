@@ -19,7 +19,6 @@ import { Enviro }from '../enviro/enviro';
         let guidStr = ('' + row.kind + '/' + row.key).toLowerCase();
         this.guid = (row.guid) ? `'${row.guid}'` : `uuid_in(md5('${guidStr}')::cstring)`;
         this.status = +row.status;
-   
     }
 }
 
@@ -84,7 +83,9 @@ RETURNING kind,key,status,guid;`
       //  kind, key, base64, item, status, stored, life_seconds, guid
 `INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
 	kind, key, base64, item, status, life_seconds, guid)
-	VALUES (${row.kind},${row.key},${row.base64},${row.item}, 0 ,${row.life_seconds},${row.guid})
+	VALUES (${row.kind},${row.key},${row.base64},
+        ${row.item}, 0 ,${row.life_seconds},${row.guid})
+ON CONFLICT(kind, key) DO NOTHING 
 RETURNING kind,key,status,guid;`
 
         return sql;
@@ -101,7 +102,7 @@ RETURNING kind,key,status,guid;`
 	item = ${row.item},
 	life_seconds = ${row.life_seconds},
 	status = status + 1 
-WHERE kind='${row.kind}' AND key='${row.key}'
+WHERE kind=${row.kind} AND key=${row.key}
 RETURNING kind,key,status,guid;`
 
     return sql;
