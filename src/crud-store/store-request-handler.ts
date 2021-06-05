@@ -140,19 +140,18 @@ export class StoreRequestHandler {
 	}
 }
 
-	//Returns {kind,key,status}
-	public async RunUpdate$(toDump: boolean = true) : Promise<StoreDto[]>{
+	//Returns  StoreDto with new  {kind,key,status}
+	public async RunUpdate$(toDump: boolean = true) : Promise<StoreDto>{
 		let client: PoolClient = undefined!;
 		try {
 			client = await Enviro.Pool.connect();
-			const	{rows}   = await client.query(this.sql);
+			let row = this.bodyRow;
 			this.RowsResult = [];
-			 rows?.forEach(r=>{
-				const{kind,key,status,guid}  = r;
-				let row  =  this.Store.getItem(kind,key);
-				row.status = status;
+			const	{rows}   = await client.query(this.sql);
+			if(rows && rows.length > 0){
+				const{kind,key,status,guid}  = rows[0];
 				row.guid = guid;
-				this.Store.setItem(kind,key,row)
+				row.status = status;
 				if(env.LOG_RESPONSE_DATA){
 					if(status <= 0){
 						console.log('RunInsert$',this.verb,row);
@@ -160,12 +159,11 @@ export class StoreRequestHandler {
 						console.log('RunUpdate$',this.verb,row);
 					}
 				}
-				//let row =  this.Store.setItem(kind,key);
-				if(row) 
-					this.RowsResult.push(row);
+				this.RowsResult.push(row);
 				return row;
-			 });
-			return this.RowsResult;
+			}
+			
+			return null;
 		} catch (e) {
 			this.error = e;
             throw e;
@@ -176,27 +174,27 @@ export class StoreRequestHandler {
 			client = undefined;
 		}
 	}	
-	public async RunDelete$(toDump: boolean = true) : Promise<StoreDto[]>{
+	//Returns  StoreDto with new  {kind,key,status}
+	public async RunDelete$(toDump: boolean = true) : Promise<StoreDto>{
 		let client: PoolClient = undefined!;
-        // For one operation
-    	
 		try {
 			client = await Enviro.Pool.connect();
-			const { rows } = await client.query(this.sql);
+			let row = this.bodyRow;
 			this.RowsResult = [];
-			 // Synchronize 
-			 rows?.forEach(r=>{
-				const{kind,key,status,guid}  = r;
+			const	{rows}   = await client.query(this.sql);
+			if(rows && rows.length > 0){
+				const{kind,key,status,guid}  = rows[0];
+				row.guid = guid;
+				row.status = -1;
 				if(env.LOG_RESPONSE_DATA){
-					console.log('RunDelete$',this.verb,r);
+					console.log('RunDelete$',this.verb,row);
 				}
-				let row =  this.Store.removeItem(kind,key);
-				if(row) 
-					this.RowsResult.push(row);
+				this.RowsResult.push(row);
 				return row;
-			 });
-
-			return this.RowsResult;
+		
+			}
+			
+			return null;
 		} catch (e) {
 			this.error = e;
             throw e;
@@ -207,6 +205,7 @@ export class StoreRequestHandler {
 			client = undefined;
 		}
 	}	
+
 
 	protected prefixDump() {
 		const p = this;
