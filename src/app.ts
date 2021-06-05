@@ -1,19 +1,16 @@
 import * as EX  from 'express';
 import { AddressInfo } from "net";
 import * as path from 'path';
-import * as dotenv from 'dotenv';
-import * as pg from 'pg';
 import { Enviro } from './enviro/enviro';
 
 import { EnviroRouter } from './routes/enviro.route';
 import { StoreRouter } from './routes/store.route';
 import { LoggerRouter } from './routes/logger.route';
-
-const debug = require('debug')('my express app');
 const app: EX.Express = EX();
  /// ============ INIT VARIABLES
 //app.set('port', process.env.PORT || 3000);
 const env = process.env;
+import * as uuid from 'uuid';
 
 
 
@@ -23,6 +20,11 @@ app.set('port', process.env.port || process.env.PORT || 3000);
 Enviro.dbConnect();
 
 console.log('Enviro.Dump: \n'+Enviro.dump());
+//var pass = md5('value');
+//console.log(pass);
+//var guid = uuid.parse(pass);
+//console.log(pass , guid);
+
 
 
 ///==== END INIT

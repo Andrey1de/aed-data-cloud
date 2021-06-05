@@ -7,12 +7,10 @@ import { StoreDto } from './store-dto';
 
 export class StoreCahche extends Map<string, Map<string, StoreDto>>
 {
-	public readonly IsDB: boolean;
-	constructor(public readonly Qname: string,
-		public store_ms: number = 0) {
-		super();
-		this.IsDB = this.store_ms != 0 && this.Qname != 'memory';
 
+	constructor(public readonly Qname: string,
+		public readonly IsDB: boolean) {
+		super();
 	}
 
 	getAllValues(): Array<StoreDto> {
@@ -27,11 +25,10 @@ export class StoreCahche extends Map<string, Map<string, StoreDto>>
 	getMany(kind: string, key: string): StoreDto[] {
 		let rows: StoreDto[] = [];
 		if (!key) {
-			if (kind === 'all') {
+			if (kind?.toLocaleLowerCase() === 'all') {
 				rows = this.getAllValues();
 			} else {
 				rows = this.getKind(kind);
-
 			}
 		} else {
 			const row = this.getItem(kind, key);
@@ -58,7 +55,6 @@ export class StoreCahche extends Map<string, Map<string, StoreDto>>
 	setItem(kind: string, key: string, item: StoreDto): StoreDto {
 		if (!item) {
 			return this.removeItem(kind, key);
-
 		}
 
 		const t = this.getT(kind, true);
@@ -116,14 +112,12 @@ export class StoreCahche extends Map<string, Map<string, StoreDto>>
 				if (old) {
 					typeMap.delete(item.key);
 					arr.push(old);
-
 				}
 				if (typeMap.size <= 0) {
 					this.delete(kind)
 				}
 			}
 		);
-
 		return arr;
 	}
 
@@ -137,16 +131,17 @@ export class StoreCahche extends Map<string, Map<string, StoreDto>>
 	}
 
 }
-
+//IMPORTANT except memory all another caches have been 
+//with accordance with tables of clouddata - Postgress !!!
 export const MapsGlobal: Map<string, StoreCahche> = (() => {
 	let ret = new Map<string, StoreCahche>();
-	ret.set("store", new StoreCahche("store", 3600 * 30));
-	ret.set("users", new StoreCahche("users", -1));
-	ret.set("actions", new StoreCahche("actions", 3600 * 1000));
-	ret.set("companies", new StoreCahche("companies", 3600 * 1000));
-	ret.set("temp", new StoreCahche("temp", 3600 * 480));//2 day s
-	ret.set("memory", new StoreCahche("memory", 0));
-
+	ret.set("actions", new StoreCahche("actions", true));
+	ret.set("companies", new StoreCahche("companies", true));
+	ret.set("options", new StoreCahche("options",true));
+	ret.set("sites", new StoreCahche("sites",true));
+	ret.set("store", new StoreCahche("store", true));
+	ret.set("users", new StoreCahche("users", true));
+	ret.set("memory", new StoreCahche("memory", false));
 	return ret;
 })();
 

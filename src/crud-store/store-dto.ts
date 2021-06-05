@@ -1,84 +1,70 @@
 //import { uuid } from 'uuidv4';
 //export const ITEM_STORE_TABLE_NAME =  Enviro.DB_SCHEMA + '.' + 'item_store'
 
-
-
 export class StoreDto {// implements IDto{
-    id: number = 0;// integer NOT NULL DEFAULT nextval('item_store_id_seq'::regclass),
-    kind: string = '';// text COLLATE pg_catalog."memory" NOT NULL,
-    key: string = '';//text COLLATE pg_catalog."memory" NOT NULL,
-    jsonb: any;///json (from jsonb)
-    status: number = 0;
+    guid: string | undefined = undefined;//new Guid(md5((key + '|' + kind.ToLower()))
+    kind: string | undefined = undefined;// text COLLATE pg_catalog."memory" NOT NULL,
+    key: string = undefined;//text COLLATE pg_catalog."memory" NOT NULL,
+    item: any | undefined;///=>item (from item)
+    base64 : string | undefined;
+    status: number | undefined = 0;
     stored : Date | undefined = new Date();//timestamp(3) with time zone NOT NULL,
-    store_to: Date | undefined;
-     
+    life_seconds: number ;
+      
     constructor(that: any = undefined ) {
-        this.fromAny(that);
-
-    }   
-    normDate(that : any | undefined) : Date{
-		if(that instanceof Date) that;
-		return new Date(that);
-
-	}
-    normJSonB( ) : any{
-       if(this.jsonb){
-            this.jsonb.id = this.id;
-            this.jsonb.status = this.status;
+        if(!!that) {
+            this.fromAny(that);
         }
-        return this.jsonb;
-
-	}
-    // normBody(jsonb : any | string | undefined)  : any{
-	//     if(typeof jsonb === 'object') {
-    //         this.jsonb = jsonb;
-    //     } else if(typeof jsonb === 'string') {
-    //         this.jsonb =  JSON.parse(jsonb);
-    //     } else {
-    //         this.jsonb = {};
-
-    //     }
-   
-	// }
-
-
+    }  
+    
+    IsValid(that: any):boolean {
+        let ft = (!!that 
+            && that.guid 
+            && that.kind 
+            && that.key 
+            && (that.item || that.base64 ));
+        return ft;
+    } 
     fromAny(that: any) {
         if (that) {
-            if(that.id)this.id = that.id;
-            this.kind = that.kind;
+            this.guid = that.guid;
+            this.item = that.item;
+            this.base64 = that.base64;
+            this.kind = that.kind?.toLocaleLowerCase();
             this.key = that.key;
-            if (that.stored) 
-                this.stored = this.normDate(that.stored);//| undefined;//timestamp(3) with time zone NOT NULL,
-            if (that.store_to) 
-                this.store_to = this.normDate(that.store_to);
-            if (that.status) 
-                this.status = that.status;
-            if (that.jsonb) 
-                this.jsonb = that.jsonb;
-              
+            this.stored = this.normDate(that.stored,new Date());//| undefined;//timestamp(3) with time zone NOT NULL,
+            this.status = +that.status || 0;
+            this.life_seconds = +(that.life_seconds || 0);
+                   
 		}
     }
-    compare(that: StoreDto): boolean {
-        let ret: boolean = 
-               this.kind == that.kind
-            && this.key == that.key
-            && this.stored == that.stored
-            && this.store_to == that.store_to
-            && this.jsonb == that.jsonb;
-        return ret;
+    normDate(that : any, deflt : Date | undefined = undefined) : Date{
+		if(!that) return deflt;
+		if(that instanceof Date && !isNaN(that.getDate())) return that;
+		var dt =  new Date(that);
+		if(dt instanceof Date && !isNaN(dt.getDate())) return dt;
+		return deflt;
 
-    }
+	}
 
+    normJSonB( ) : any{
+    //    if(this.item){
+    //         this.item.id = this.id;
+    //         this.item.status = this.status;
+    //     }
+        return this.item;
 
-    //get HashCode(): string {
-    //    let hash = uuid(this.kind + '||' + this.key, '', 5);
-    //    return hash;
-    //};
-
+	}
+ 
    
-    toString(toTabJson : boolean = false) {
-        const json = (!toTabJson) ? JSON.stringify(this.jsonb || {})
-            : '\n' + JSON.stringify(this.jsonb || {}, null, 2);
+    toString(toIdent : boolean = false) {
+        let json = '';
+        if(this.item){
+            json =  (!toIdent) ? JSON.stringify(this.item || {})
+            : '\n' + JSON.stringify(this.item || {}, null, 2);
+        } else if(this.base64) {
+            json = this.base64;
+        }
         return `StoreDto:[${this.kind}/${this.key}] => ${json};`
 	}
  

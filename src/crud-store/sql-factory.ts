@@ -1,12 +1,30 @@
 import { StoreDto } from './store-dto';
 import { Enviro }from '../enviro/enviro';
 
+ class UpdateRowHelper {
+     kind: string;//row.kind || '';
+     key: string;//row.key || '';
+     item: string;//row.item || '';
+     base64: string;//row.base64 || '';
+     life_seconds: number;//+row.life_seconds;
+     guid: string;//row.guid || '';
+     status : number;
 
+    constructor(public row:StoreDto){
+        this.kind = `'${row.kind || ''}'` || '';
+        this.key = `'${row.key}'` || '';
+        this.item =  (row.item) ? `'${JSON.stringify(row.item)}'` : 'NULL';
+        this.base64 = (row.base64) ? `'${row.base64}'` : 'NULL';//row.base64 || '';
+        this.life_seconds = +row.life_seconds;//+row.life_seconds;
+        let guidStr = ('' + row.kind + '/' + row.key).toLowerCase();
+        this.guid = (row.guid) ? `'${row.guid}'` : `uuid_in(md5('${guidStr}')::cstring)`;
+        this.status = +row.status;
+   
+    }
+}
 
 class SqlFactoryClass {
-  
     constructor() {
-
     }
 
     normDate(that : any | undefined) : Date{
@@ -14,110 +32,80 @@ class SqlFactoryClass {
 		return new Date(that);
 
 	}
-
-    // SELECT id, kind, key, jsonb, status, stored, store_to
+//========================= GET ========================================
+    // SELECT kind, key, base64, item, status, stored, life_seconds, guid
 	// FROM public.store;
     Get(table: string, kind: string, key: string = undefined!): string {
+       let sql1 = (!key || key.toLowerCase() == 'all' || key.toLowerCase() == '*' ) ? 
+       '' : `AND key='${key} '`;
         let sql = 
-`SELECT id, kind, key, jsonb, status, stored, store_to 
-FROM ${Enviro.DB_SCHEMA}.${table} `;
-     
-        if (!(kind.toLowerCase() == 'all' && !key)) {
-
-            sql += `WHERE kind='${kind}'`;
-            if(key) {
-                sql += ` AND key='${key}' `
-            }
-		}
-        sql += ';';
+`SELECT kind, key, base64, item, status, stored, life_seconds, guid
+FROM ${Enviro.DB_SCHEMA}.${table} 
+WHERE kind='${kind}' ${sql1} ;`;
         return sql;
     }
+
+//========================= DELETE ========================================
     Delete(table: string, kind: string, key: string = undefined!): string {
-
-        let sql = `DELETE FROM ${Enviro.DB_SCHEMA}.${table} `;
-        if (!(kind.toLocaleLowerCase() == 'all' && !key)) {
-            sql += `WHERE kind='${kind}'`;
-            if(key) {
-                sql += ` AND key='${key}' `
-            }
-		}
-        
-        sql += ' RETURNING *;';
-        return sql;
-
-    }
-    UpsertRow(table: string, row: StoreDto): string {
-        const store_to = (row.store_to) ?
-            `'${this.normDate(row.store_to).toISOString()}'` : 'DEFAULT';
-         const jsonb = JSON.stringify(row.jsonb) ;
-         //TO ENCODE ????
-        let sql : string;
-        if(!!row.id) 
-        {
-sql = `INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
-    id, kind, key, jsonb , store_to)
-    VALUES ('${row.id}','${row.kind}','${row.key}','${jsonb}',${store_to})
-ON CONFLICT(kind, key) DO UPDATE SET
-    stored = now(),
-    id = EXCLUDED.id,
-    jsonb = EXCLUDED.jsonb,
-    store_to = EXCLUDED.store_to,
-    status = 1 
-RETURNING *;`          
-        } 
-        else 
-        {
-sql = `INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
-    kind, key, jsonb , store_to)
-    VALUES ('${row.kind}','${row.key}','${jsonb}',${store_to})
-ON CONFLICT(kind, key) DO UPDATE SET
-    stored = now(),
-    jsonb = EXCLUDED.jsonb,
-    store_to = EXCLUDED.store_to,
-    status = 1 
-RETURNING *;`
-        }
-      
+      let sql1 = (!key || key.toLowerCase() == 'all' || key.toLowerCase() == '*' ) ? 
+       '' : `AND key='${key}' `;
+        let sql = 
+`DELETE FROM ${Enviro.DB_SCHEMA}.${table} 
+ WHERE kind='${kind}' ${sql1} 
+ RETURNING kind,key,status,guid;`;
         return sql;
     }
 
-
-    InsertRow(table: string, row: StoreDto): string {
-        const store_to = (row.store_to) ?
-            `'${this.normDate(row.store_to).toISOString()}'` : 'DEFAULT';
-        const jsonb = JSON.stringify(row.jsonb) ;
-            //TO ENCODE ????
-        let sql = '';
-        if(!!row.id) { 
-sql = 
+//========================= UPSERT ========================================
+    UpsertRow(table: string, dto: StoreDto): string {
+    const row = new UpdateRowHelper(dto);
+      //  kind, key, base64, item, status, stored, life_seconds, guid
+  
+      const sql = 
 `INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
-    id, kind, key, store_to, jsonb)
-    VALUES ('${row.id}','${row.kind}','${row.key}',${store_to},'${jsonb}')
-RETURNING *;`
-        } else { 
-sql = 
-`INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
-     kind, key, store_to, jsonb)
-    VALUES ('${row.kind}','${row.key}',${store_to},'${jsonb}')
-RETURNING *;`
-        }
+	kind, key, base64, item, status, life_seconds, guid)
+	VALUES (${row.kind},${row.key},${row.base64},${row.item}, ${row.status} ,${row.life_seconds},${row.guid})
+ON CONFLICT(kind, key) DO UPDATE SET
+	stored = now(),
+	base64 = EXCLUDED.base64,
+	item = EXCLUDED.item,
+	life_seconds = EXCLUDED.life_seconds,
+	//guid = EXCLUDED.guid,
+	status = 1 
+RETURNING kind,key,status,guid;`
+//console.log(sql);
         return sql;
     }
 
-
-    UpdateRow(table: string, row: StoreDto): string {
-        const store_to = (row.store_to) ?
-            `'${row.store_to.toISOString()}'` : "DEFAULT";
-        const jsonb = row.jsonb;
-        //TO ENCODE ????
+//========================= INSERT ========================================
+    InsertRow(table: string, dto: StoreDto): string {
+        const row = new UpdateRowHelper(dto);
+ 
         const sql =
-            
-`UPDATE ${Enviro.DB_SCHEMA}.${table} SET ` +
-    `stored=now(), ` +
-    `store_to=${store_to}, ` +
-    `jsonb=${jsonb} ` +
-`WHERE kind='${row.kind}' AND key='${row.key}' ` +
-`RETURNING * ;`
+      //  kind, key, base64, item, status, stored, life_seconds, guid
+`INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
+	kind, key, base64, item, status, life_seconds, guid)
+	VALUES (${row.kind},${row.key},${row.base64},${row.item}, 0 ,${row.life_seconds},${row.guid})
+RETURNING kind,key,status,guid;`
+
+        return sql;
+    }
+
+//========================= UPDATE ========================================
+    UpdateRow(table: string, dto: StoreDto): string {
+        const row = new UpdateRowHelper(dto);
+      //  kind, key, base64, item, status, stored, life_seconds, guid
+      const sql = 
+`UPDATE ${Enviro.DB_SCHEMA}.${table} SET
+	stored = now(),
+	base64 = ${row.base64},
+	item = ${row.item},
+	life_seconds = ${row.life_seconds},
+//	guid = ${row.guid},
+	status = status + 1 
+WHERE kind='${row.kind}' AND key='${row.key}'
+RETURNING kind,key,status,guid;`
+
     return sql;
     }
 

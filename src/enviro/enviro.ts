@@ -5,9 +5,8 @@
 ///
 import  * as pg  from 'pg';
 import * as dotenv from 'dotenv';
-import * as EX from 'express';
-const VERSION = '1.2.11';
-const DESCRIPTION = "Body === jsonb | res.send({status: S.CREATED, key: key,rows:[row1,row2 ...] , msg: 'CREATED'})"
+const VERSION = '1.2.12';
+const DESCRIPTION = "2021-06-02: base64, item | res.send({status: S.CREATED, key: key,rows:[row1,row2 ...] , msg: 'CREATED'})"
 function isTrue(str: string) {
 	str = str?.toUpperCase() || '';
 	return str === 'YES' || str === '1' || str === 'TRUE';
@@ -45,7 +44,7 @@ class EnviroClass {
 		env.VERSION = this.VERSION;
 		env.LOG_RESPONSE = 'YES';
 		env.LOG_RESPONSE_DATA = 'YES';
-		env.RESP_UPSERT_BODY = 'YES';
+		env.RESP_UPSERT_BODY = 'NO';
 		env.LOG_SQL = 'YES';
 		dotenv.config();
 

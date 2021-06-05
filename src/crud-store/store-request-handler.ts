@@ -6,6 +6,8 @@ import * as S from '../common/http-status';
 import { EGuard } from "./e-guard";
 import { GlobalGetMapSore, StoreCahche } from "./store-cache";
 import { StoreDto } from "./store-dto";
+import { env } from "process";
+import { stat } from "fs";
 //import { stream } from "winston";
 
 
@@ -18,15 +20,16 @@ export class StoreRequestHandler {
 	readonly key: string = undefined!;
 	readonly db: boolean = false!;
 	readonly isAdmin: boolean = false!;
+    readonly IsUpdate: boolean = false!;
 	readonly oneRow: boolean = false!;
+	readonly bodyValid: boolean = false!;
 	//private readonly body: any = undefined!; //= (req.body.item || req.body);
-	readonly bodyValid: boolean = false;//(this.body && this.body.jsonb)
 	//this.row genera
-	readonly row: StoreDto = undefined!; //= (req.body.item || req.body);
-	readonly Store: StoreCahche;
 	public sql: string = '';
+	public readonly Store: StoreCahche = undefined;;
 
 	public RowsResult: StoreDto[] = [];
+	readonly bodyRow: StoreDto = undefined!; // for Update and Insert
 	
 	private error: Error = undefined;
 	get Error(): Error { return this.error; }
@@ -38,45 +41,30 @@ export class StoreRequestHandler {
 		public readonly flags: EGuard )
 	{
 		this.queue = (req.params?.queue.toString() || 'memory').toLowerCase();
-		this.kind = (req.params?.kind || '').toLowerCase();
+        this.Store = GlobalGetMapSore(this.queue);
+        this.kind = (req.params?.kind || '').toLowerCase();
 		this.key = req.params?.key || '';
-		if(this.queue == 'store' && this.kind  == 'change') {
-			this.key = this.key.toUpperCase();
+        this.IsUpdate = this.verb !== 'GET' &&  this.verb !== 'DELETE';
+        this.oneRow = !!this.key;
+	    this.bodyValid = !!req.body;
 
+    
+        if(this.queue == 'store' && this.kind  == 'change') {
+			this.key = this.key.toUpperCase();
 		}
-		else if(this.queue == 'users' ) {
+    	else if(this.queue == 'users' ) {
 			this.key = ( req.body?.user || this.key).toLowerCase();
 			if(req.body) req.body.key = this.key;
-
 		}
-	
-		//let body = req.body?.item || req.body;
-		const strDb = (req.query?.db || '').toString().toLowerCase();
-		this.db = (strDb === '1' || strDb.startsWith('yes') || strDb.startsWith('tru'));
-		const strAdmin = (req.query?.admin || '').toLocaleString();
-		this.isAdmin = strAdmin === 'admin' || strDb === 'kuku-ja-chajnik';
-		this.Store = GlobalGetMapSore(this.queue);
-		this.oneRow = !!this.key;
-		this.bodyValid = !!this.oneRow && (!!req.body );
-		
-			
-		//The row is generated in every case   but update and insert would be forbidden !!!
-		if(req.body) {
-			this.row = new StoreDto(undefined);
-			this.row.key = this.key || req.body.key ;
-			req.body.key = this.row.key;
-			if(req.body.store_to) {
-				this.row.store_to =this.normDate(req.body.store_to,new Date('2100-01-01'));
-				req.body.store_to = this.row.store_to;
 
-			}
-			this.row.kind = this.kind;
-//Store_to may be supplied bu jsonbody !!!
-			this.row.stored = new Date();
-			this.row.jsonb = req.body ;// 1.2.11 req.body === jsonb !!!
-			
-		}
-		
+//Normalization of this.row for Update Or Insert
+//The row only for Insert and Update operations
+ 	    if(!!this.IsUpdate && (!!req.body ) && this.oneRow) {
+            req.body.key =  this.key;
+            req.body.kind =  this.kind;
+ 			this.bodyRow = new StoreDto(req.body);
+  		}
+				
 	}
 
 	normDate(that : any, deflt : Date | undefined = undefined) : Date{
@@ -124,42 +112,101 @@ export class StoreRequestHandler {
 		return this.status;
 
 	}
-	
-	public async Run$(toDump: boolean = true) : Promise<StoreDto[]>{
-		const isDelete = this.verb.toUpperCase() === 'DELETE';
+	public async RunGet$(toDump: boolean = true) : Promise<StoreDto[]>{
 		let client: PoolClient = undefined!;
+	
+	try {
+		client = await Enviro.Pool.connect();
+		const { rows } = await client.query(this.sql);
+		 // Synchronize 
+		this.RowsResult = rows?.map(r => {
+			const row = new StoreDto(r);
+			   this.Store.setItem(row.kind, row.key, row);
+			return row;
+	
+		}) || [];
+		return this.RowsResult;
+
+	} catch (e) {
+		this.error = e;
+		throw e;
+		//console.error(e);
+	} finally {
+		if (client) {
+			await client.release();
+		}
 		
+		client = undefined;
+	}
+}
+
+	//Returns {kind,key,status}
+	public async RunUpdate$(toDump: boolean = true) : Promise<StoreDto[]>{
+		let client: PoolClient = undefined!;
 		try {
 			client = await Enviro.Pool.connect();
-			const { rows } = await client.query(this.sql);
-			 // Synchronize 
-			this.RowsResult = rows?.map(r => {
-					
-				const row = new StoreDto(r);
-				if (!isDelete) {
-					this.Store.setItem(row.kind, row.key, row);
-				} else {
-					this.Store.removeItem(row.kind, row.key);
-
+			const	{rows}   = await client.query(this.sql);
+			this.RowsResult = [];
+			 rows?.forEach(r=>{
+				const{kind,key,status,guid}  = r;
+				let row  =  this.Store.getItem(kind,key);
+				row.status = status;
+				row.guid = guid;
+				this.Store.setItem(kind,key,row)
+				if(env.LOG_RESPONSE_DATA){
+					if(status <= 0){
+						console.log('RunInsert$',this.verb,row);
+					} else {
+						console.log('RunUpdate$',this.verb,row);
+					}
 				}
+				//let row =  this.Store.setItem(kind,key);
+				if(row) 
+					this.RowsResult.push(row);
 				return row;
-		
-			}) || [];
+			 });
 			return this.RowsResult;
-		//	this.Dump();
-		//	logSqlRes(this.verb, this, this.RowsResult);
-
 		} catch (e) {
 			this.error = e;
-			//console.error(e);
+            throw e;
 		} finally {
 			if (client) {
 				await client.release();
 			}
-			
 			client = undefined;
 		}
-	}
+	}	
+	public async RunDelete$(toDump: boolean = true) : Promise<StoreDto[]>{
+		let client: PoolClient = undefined!;
+        // For one operation
+    	
+		try {
+			client = await Enviro.Pool.connect();
+			const { rows } = await client.query(this.sql);
+			this.RowsResult = [];
+			 // Synchronize 
+			 rows?.forEach(r=>{
+				const{kind,key,status,guid}  = r;
+				if(env.LOG_RESPONSE_DATA){
+					console.log('RunDelete$',this.verb,r);
+				}
+				let row =  this.Store.removeItem(kind,key);
+				if(row) 
+					this.RowsResult.push(row);
+				return row;
+			 });
+
+			return this.RowsResult;
+		} catch (e) {
+			this.error = e;
+            throw e;
+		} finally {
+			if (client) {
+				await client.release();
+			}
+			client = undefined;
+		}
+	}	
 
 	protected prefixDump() {
 		const p = this;
@@ -185,7 +232,7 @@ export class StoreRequestHandler {
 			this.prefixDump();
 			
 			if (this.RowsResult.length > 0 && Enviro.LOG_RESPONSE_DATA) {
-				const jsonArr = this.RowsResult.map(p=>p.jsonb);
+				const jsonArr = this.RowsResult.map(p=>p.item);
 				console.table(jsonArr);
 			}
 

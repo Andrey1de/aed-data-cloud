@@ -14,7 +14,7 @@ class TaskMachineClass {
 		this.Broker.next(p);
 	}
 	async Run$(p: StoreRequestHandler) {
-		await p.Run$();
+		await p.RunGet$();
 		p.Dump();
     }
 

@@ -1,6 +1,6 @@
 {
   "name": "aed-data-cloud",
-  "version": "1.2.11",
+  "version": "1.2.12",
   "private": true,
   "scripts": {
     "build": "tsc --build",
@@ -28,10 +28,12 @@
     "express-async-router": "^0.1.15",
     "http-status-codes": "^2.1.4",
     "jstransformer-markdown-it": "^2.1.0",
+    "md5": "^2.3.0",
     "pg": "^8.6.0",
     "pug": "^3.0.2",
     "rxjs": "^7.0.0",
     "start": "^5.1.0",
+    "uuid": "^8.3.2",
     "uuidv4": "^6.2.7",
     "winston": "^3.3.3"
   },
