@@ -153,6 +153,7 @@ export class StoreController {
 				return ;
 			}
 			let old = p.Store.getItem(p.kind, p.key);
+			let newRow = p.Store.setItem(p.kind, p.key,p.bodyRow);
 			
 			p.sql =  (!old)
 				? SqlFactory.UpsertRow(p.queue, p.bodyRow)
