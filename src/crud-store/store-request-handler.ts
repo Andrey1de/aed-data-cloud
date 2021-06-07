@@ -45,7 +45,7 @@ export class StoreRequestHandler {
         this.Store = GlobalGetMapSore(this.queue);
         this.kind = (req.params?.kind || '').toLowerCase();
 		this.key = (req.params?.key || '').toLowerCase();
-        this.IsUpdate = this.verb === 'POST' ||  this.verb !== 'PUT';
+        this.IsUpdate = this.verb === 'POST' ||  this.verb === 'PUT'||  this.verb === 'PATCH';
         this.oneRow = !!this.key;
 		const db: string = (req.query.db?.toString() || '').toUpperCase();
 		this.db = !!(+db) || db.startsWith('Y') || db.startsWith('TRU');
