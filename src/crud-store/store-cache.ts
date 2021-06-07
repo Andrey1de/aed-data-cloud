@@ -79,12 +79,12 @@ export class StoreCahche extends Map<string, Map<string, StoreDto>>
 
 	}
 	//Returns array of old item that exists
-	setItemR(row: StoreDto): StoreDto {
-		return this.setItem(row.kind, row.key, row);
-	}
-	removeItemR(row: StoreDto): StoreDto {
-		return this.removeItem(row.kind, row.key);
-	}
+	// setItemR(row: StoreDto): StoreDto {
+	// 	return this.setItem(row.kind, row.key, row);
+	// }
+	// removeItscemR(row: StoreDto): StoreDto {
+	// 	return this.removeItem(row.kind, row.key);
+	// }
 	setRange(kind: string, item: StoreDto[]) {
 		if (!item || item.length <= 0) return [];
 		let typeMap = this.getT(kind, true);

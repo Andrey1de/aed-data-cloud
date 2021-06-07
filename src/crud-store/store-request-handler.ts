@@ -35,33 +35,27 @@ export class StoreRequestHandler {
 	get Error(): Error { return this.error; }
 	private status: number = S.OK;
 	get Status(): number { return this.status; }
+	public readonly verb: string;
 
 	constructor(private req: Request, private res: Response,
-		public readonly verb: string,
-		public readonly flags: EGuard )
+			public readonly flags: EGuard )
 	{
+		this.verb = req.method.toUpperCase()
 		this.queue = (req.params?.queue.toString() || 'memory').toLowerCase();
         this.Store = GlobalGetMapSore(this.queue);
         this.kind = (req.params?.kind || '').toLowerCase();
-		this.key = req.params?.key || '';
-        this.IsUpdate = this.verb !== 'GET' &&  this.verb !== 'DELETE';
+		this.key = (req.params?.key || '').toLowerCase();
+        this.IsUpdate = this.verb === 'POST' ||  this.verb !== 'PUT';
         this.oneRow = !!this.key;
+		const db: string = (req.query.db?.toString() || '').toUpperCase();
+		this.db = !!(+db) || db.startsWith('Y') || db.startsWith('TRU');
 	    this.bodyValid = !!req.body;
-
-    
-        if(this.queue == 'store' && this.kind  == 'change') {
-			this.key = this.key.toUpperCase();
-		}
-    	else if(this.queue == 'users' ) {
-			this.key = ( req.body?.user || this.key).toLowerCase();
-			if(req.body) req.body.key = this.key;
-		}
 
 //Normalization of this.row for Update Or Insert
 //The row only for Insert and Update operations
  	    if(!!this.IsUpdate && (!!req.body ) && this.oneRow) {
             req.body.key =  this.key;
-            req.body.kind =  this.kind;
+           // req.body.kind =  this.kind;
  			this.bodyRow = new StoreDto(req.body);
   		}
 				
@@ -90,7 +84,6 @@ export class StoreRequestHandler {
 		if ((this.flags & EGuard.Kind) && !this.kind) {//(this.flags & EGuard.Type) && this.kind
 			strError += ((!!strError) ? ' AND ' : '') + `Bad parameter: kind:` + this.kind;
 			//this.status = S.BAD_REQUEST;
-
 		}
 
 		if ((this.flags & EGuard.Key) && !this.key) {
@@ -121,7 +114,7 @@ export class StoreRequestHandler {
 		 // Synchronize 
 		this.RowsResult = rows?.map(r => {
 			const row = new StoreDto(r);
-			   this.Store.setItem(row.kind, row.key, row);
+			   this.Store.setItem(this.kind, row.key, row);
 			return row;
 	
 		}) || [];
@@ -159,7 +152,7 @@ export class StoreRequestHandler {
 						console.log('RunUpdate$',this.verb,row);
 					}
 				}
-				this.Store.setItem(row.kind, row.key,row);
+				this.Store.setItem(this.kind, row.key,row);
 				this.RowsResult.push(row);
 				return row;
 			}

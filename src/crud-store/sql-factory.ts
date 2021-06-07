@@ -11,8 +11,7 @@ import { Enviro }from '../enviro/enviro';
      status : number;
 
     constructor(public row:StoreDto){
-        this.kind = `'${row.kind || ''}'`;
-        this.key = `'${row.key || ''}'`;
+        this.key = `'${(row.key || '').toLowerCase()}'`;
         this.item =  (row.item) ? `'${JSON.stringify(row.item)}'` : 'NULL';
         this.base64 = (row.base64) ? `'${row.base64}'` : 'NULL';//row.base64 || '';
         this.life_seconds = +row.life_seconds;//+row.life_seconds;
@@ -36,10 +35,10 @@ class SqlFactoryClass {
     // SELECT kind, key, base64, item, status, stored, life_seconds, guid
 	// FROM public.store;
     Get(table: string, kind: string, key: string = undefined!): string {
-       let sql1 = (!key || key.toLowerCase() == 'all' || key.toLowerCase() == '*' ) ? 
-       '' : `AND key='${key} '`;
+       let sql1 = (!key || key == 'all' || key == '*' ) ? 
+       '' : `AND key='${key}'`;
         let sql = 
-`SELECT kind, key, base64, item, status, stored, life_seconds, guid
+  `SELECT kind, key, base64, item, status, stored, life_seconds, guid
 FROM ${Enviro.DB_SCHEMA}.${table} 
 WHERE kind='${kind}' ${sql1} ;`;
         return sql;
@@ -57,15 +56,15 @@ WHERE kind='${kind}' ${sql1} ;`;
     }
 
 //========================= UPSERT ========================================
-    UpsertRow(table: string, dto: StoreDto): string {
-    const row = new UpdateRowHelper(dto);
+    UpsertRow(table: string, kind : string, dto: StoreDto): string {
+    const hlp = new UpdateRowHelper(dto);
       //  kind, key, base64, item, status, stored, life_seconds, guid
   
       const sql = 
 `INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
 	kind, key, base64, item, status, life_seconds, guid)
-	VALUES (${row.kind},${row.key},${row.base64},
-        ${row.item}, ${row.status} ,${row.life_seconds},${row.guid})
+	VALUES ('${kind}',${hlp.key},${hlp.base64},
+        ${hlp.item}, ${hlp.status} ,${hlp.life_seconds},${hlp.guid})
 ON CONFLICT(kind, key) DO UPDATE SET
 	stored = now(),
 	base64 = EXCLUDED.base64,
@@ -79,15 +78,15 @@ RETURNING kind,key,status,guid;`
     }
 
 //========================= INSERT ========================================
-    InsertRow(table: string, dto: StoreDto): string {
-        const row = new UpdateRowHelper(dto);
+    InsertRow(table: string, kind : string, dto: StoreDto): string {
+        const hlp = new UpdateRowHelper(dto);
  
         const sql =
       //  kind, key, base64, item, status, stored, life_seconds, guid
 `INSERT INTO ${Enviro.DB_SCHEMA}.${table}(
 	kind, key, base64, item, status, life_seconds, guid)
-	VALUES (${row.kind},${row.key},${row.base64},
-        ${row.item}, 0 ,${row.life_seconds},${row.guid})
+	VALUES ('${kind}',${hlp.key},${hlp.base64},
+        ${hlp.item}, 0 ,${hlp.life_seconds},${hlp.guid})
 ON CONFLICT(kind, key) DO NOTHING 
 RETURNING kind,key,status,guid;`
 
@@ -95,17 +94,17 @@ RETURNING kind,key,status,guid;`
     }
 
 //========================= UPDATE ========================================
-    UpdateRow(table: string, dto: StoreDto): string {
-        const row = new UpdateRowHelper(dto);
+    UpdateRow(table: string, kind : string, dto: StoreDto): string {
+        const hlp = new UpdateRowHelper(dto);
       //  kind, key, base64, item, status, stored, life_seconds, guid
       const sql = 
 `UPDATE ${Enviro.DB_SCHEMA}.${table} SET
 	stored = now(),
-	base64 = ${row.base64},
-	item = ${row.item},
-	life_seconds = ${row.life_seconds},
+	base64 = ${hlp.base64},
+	item = ${hlp.item},
+	life_seconds = ${hlp.life_seconds},
 	status = status + 1 
-WHERE kind=${row.kind} AND key=${row.key}
+WHERE kind='${kind}' AND key=${hlp.key}
 RETURNING kind,key,status,guid;`
 
     return sql;

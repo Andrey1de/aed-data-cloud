@@ -3,7 +3,7 @@
 
 export class StoreDto {// implements IDto{
     guid: string | undefined = undefined;//new Guid(md5((key + '|' + kind.ToLower()))
-    kind: string | undefined = undefined;// text COLLATE pg_catalog."memory" NOT NULL,
+ //   kind: string | undefined = undefined;// text COLLATE pg_catalog."memory" NOT NULL,
     key: string = undefined;//text COLLATE pg_catalog."memory" NOT NULL,
     item: any | undefined;///=>item (from item)
     base64 : string | undefined;
@@ -30,8 +30,7 @@ export class StoreDto {// implements IDto{
             this.guid = that.guid;
             this.item = that.item;
             this.base64 = that.base64;
-            this.kind = that.kind?.toLocaleLowerCase();
-            this.key = that.key;
+             this.key = that.key;
             this.stored = this.normDate(that.stored,new Date());//| undefined;//timestamp(3) with time zone NOT NULL,
             this.status = +that.status || 0;
             this.life_seconds = +(that.life_seconds || 0);
@@ -65,7 +64,7 @@ export class StoreDto {// implements IDto{
         } else if(this.base64) {
             json = this.base64;
         }
-        return `StoreDto:[${this.kind}/${this.key}] => ${json};`
+        return `StoreDto:[${this.key}] => ${json};`
 	}
  
 };

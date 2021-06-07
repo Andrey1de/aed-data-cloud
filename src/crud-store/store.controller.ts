@@ -55,12 +55,12 @@ function ResParametersError(res: Response , e:Error){
 export class StoreController {
 
 	public async Get$(req: Request, res: Response) {
-		let rowsRet: StoreDto[] = [];
+		let rowsRet: any[] = [];
 		let _key : string = '';
 		try {
 
 			let p: StoreRequestHandler = 
-				new  StoreRequestHandler(req, res,'GET',EGuard.Kind );
+				new  StoreRequestHandler(req, res,EGuard.Kind );
 
 			if (p.Validate() != S.OK)   {
 				ResParametersError(res,p.Error);
@@ -74,6 +74,17 @@ export class StoreController {
 				p.sql = SqlFactory.Get(p.queue, p.kind, p.key);
 				rowsRet = await p.RunGet$();
 				//p.Dump();
+			}
+			if(!p.db && rowsRet.length > 0){
+				let arr0 = [];
+				 rowsRet.forEach(r=>{
+					let o = new Object();
+					o["key"] = r.key;
+					if( r.base64){o["base64"] = r.base64;}
+					else if(r.item) {o["item"] = r.item;}
+					arr0.push(o);
+				});
+				rowsRet =[...arr0] ;
 			}
 		
 			let status = (rowsRet.length > 0) ? S.OK : S.NO_CONTENT;
@@ -95,19 +106,18 @@ export class StoreController {
 		let kind = '';
 		try {
 			let p: StoreRequestHandler = new StoreRequestHandler(req, res,
-				req.method,  EGuard.Kind | EGuard.Key | EGuard.Body);
+				  EGuard.Kind | EGuard.Key | EGuard.Body);
 			if (p.Validate() != S.OK)   {
 				ResParametersError(res,p.Error);
 				return ;
 			}
-			key = p.key;
-			kind = p.kind;
-
-			p.sql = SqlFactory.InsertRow(p.queue, p.bodyRow);
-			const	row0 = await p.RunUpdate$();
+				
+			p.sql = SqlFactory.InsertRow(p.queue,p.kind,p.bodyRow);
+			const	row = await p.RunUpdate$();
 	
-			if(!!row0){
-				res.send({kind:row0.kind,key:row0.key,status:row0.status,guid:row0.guid})
+			if(!!row){
+				res.send({kind:p.kind,
+						key:row.key,status:row.status,guid:row.guid})
 					.status(S.CREATED).end();
 					return;
 			}
@@ -130,28 +140,26 @@ export class StoreController {
 	/// Returns upserted row with id and status inbound in body !!!;
 	//==============================================================
 	public async Upsert$(req: Request, res: Response) {
-		let _key : string = '';
 		try {
 			let p: StoreRequestHandler = new StoreRequestHandler(req, res,
-				req.method, EGuard.Kind | EGuard.Key | EGuard.Body);
+				 EGuard.Kind | EGuard.Key | EGuard.Body);
 	
 			if (p.Validate() != S.OK)   {
 				ResParametersError(res,p.Error);
 				return ;
 			}
 			let old = p.Store.getItem(p.kind, p.key);
-			let newRow = p.Store.setItem(p.kind, p.key,p.bodyRow);
-			
+				
 			p.sql =  (!old)
-				? SqlFactory.UpsertRow(p.queue, p.bodyRow)
-				: SqlFactory.UpdateRow(p.queue, p.bodyRow);
-			const row0 = await p.RunUpdate$();
-			if(!!row0){
-				let httpStatus = (row0.status == 0) ? S.CREATED : S.OK;
+				? SqlFactory.UpsertRow(p.queue, p.kind,p.bodyRow)
+				: SqlFactory.UpdateRow(p.queue,p.kind, p.bodyRow);
+			const row = await p.RunUpdate$();
+			if(!!row){
+				let httpStatus = (row.status == 0) ? S.CREATED : S.OK;
 					//p.Dump();
-				//res.sendStatus(httpStatus).end();
-				res.send({kind:p.kind,key:p.key,
-						status:row0.status,guid:row0.guid})
+					//res.sendStatus(httpStatus).end();
+				res.send({kind:p.kind,key:row.key,
+						status:row.status,guid:row.guid})
 					.status(httpStatus).end();
 
 			} else {
@@ -174,8 +182,8 @@ export class StoreController {
 		try {
 
 			let p: StoreRequestHandler = new StoreRequestHandler(req, res,
-				req.method, EGuard.Kind | EGuard.Key);
-			let _key = p.key || 'ALL';
+				 EGuard.Kind | EGuard.Key);
+	//		let _key = p.key || 'ALL';
 
 			if (p.Validate() != S.OK)   {
 				ResParametersError(res,p.Error);
