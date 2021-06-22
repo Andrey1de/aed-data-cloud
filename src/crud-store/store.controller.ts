@@ -84,7 +84,7 @@ export class StoreController {
 					else if(r.item) {o["item"] = r.item;}
 					arr0.push(o);
 				});
-				rowsRet =[...arr0] ;
+				rowsRet =[...arr0] ;   
 				res.send(rowsRet).status(S.OK).end();
 				return;
 			} 
