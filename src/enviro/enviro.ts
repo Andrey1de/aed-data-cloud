@@ -5,7 +5,7 @@
 ///
 import  * as pg  from 'pg';
 import * as dotenv from 'dotenv';
-const VERSION = '1.2.15';
+const VERSION = '1.2.16';
 const DESCRIPTION = "2021-06-02: base64, item | res.send({status: S.CREATED, key: key,rows:[row1,row2 ...] , msg: 'CREATED'})"
 function isTrue(str: string) {
 	str = str?.toUpperCase() || '';

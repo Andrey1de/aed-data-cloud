@@ -75,7 +75,7 @@ export class StoreController {
 				rowsRet = await p.RunGet$();
 				//p.Dump();
 			}
-			if(!p.db && rowsRet.length > 0){
+			if(rowsRet.length > 0){
 				let arr0 = [];
 				 rowsRet.forEach(r=>{
 					let o = new Object();
@@ -85,13 +85,14 @@ export class StoreController {
 					arr0.push(o);
 				});
 				rowsRet =[...arr0] ;
-			}
-		
-			let status = (rowsRet.length > 0) ? S.OK : S.NO_CONTENT;
-			res.send(rowsRet).status(status).end();
-		} catch (e) {
+				res.send(rowsRet).status(S.OK).end();
+				return;
+			} 
 
-			ResApplicationError(res,e);
+			res.sendStatus(S.NO_CONTENT).end();
+		
+		} catch (e) {
+				ResApplicationError(res,e);
 		}
 	}
 
